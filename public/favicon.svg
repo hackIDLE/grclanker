@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#303446"/>
+  <!-- Antenna stalk -->
+  <rect x="14" y="1" width="4" height="4" rx="1" fill="#626880"/>
+  <circle cx="16" cy="1.5" r="1.5" fill="#8caaee"/>
+  <!-- Ear panels -->
+  <rect x="1.5" y="12" width="4" height="8" rx="1.5" fill="#51576d"/>
+  <rect x="26.5" y="12" width="4" height="8" rx="1.5" fill="#51576d"/>
+  <!-- Head body -->
+  <rect x="5" y="5" width="22" height="22" rx="4" fill="#414559" stroke="#626880" stroke-width="1"/>
+  <!-- Forehead plate -->
+  <rect x="8" y="7.5" width="16" height="5" rx="2" fill="#51576d"/>
+  <!-- Visor band -->
+  <rect x="7" y="14" width="18" height="6" rx="1.5" fill="#232634"/>
+  <!-- Left eye -->
+  <rect x="8.5" y="15" width="5.5" height="4" rx="1" fill="#8caaee"/>
+  <rect x="8.5" y="15" width="5.5" height="4" rx="1" fill="#8caaee" opacity="0.4" filter="url(#glow)"/>
+  <!-- Right eye -->
+  <rect x="18" y="15" width="5.5" height="4" rx="1" fill="#8caaee"/>
+  <rect x="18" y="15" width="5.5" height="4" rx="1" fill="#8caaee" opacity="0.4" filter="url(#glow)"/>
+  <!-- Mouth grille -->
+  <rect x="10.5" y="22" width="11" height="3.5" rx="1" fill="#232634"/>
+  <line x1="13" y1="22" x2="13" y2="25.5" stroke="#51576d" stroke-width="1"/>
+  <line x1="16" y1="22" x2="16" y2="25.5" stroke="#51576d" stroke-width="1"/>
+  <line x1="19" y1="22" x2="19" y2="25.5" stroke="#51576d" stroke-width="1"/>
+</svg>

@@ -1,0 +1,30 @@
+<!-- Command palette: search overlay + keyboard shortcut system -->
+
+<!-- Search overlay -->
+<div id="search-backdrop" class="overlay-backdrop" aria-hidden="true"></div>
+<div id="search-modal" class="overlay-modal" role="dialog" aria-modal="true" aria-label="Search specs">
+  <div class="viewscreen rounded-lg overflow-hidden hud-corners">
+    <div class="p-3 border-b border-surface0">
+      <input
+        id="search-input"
+        type="text"
+        class="search-input"
+        placeholder="Search specs..."
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Search specs"
+      />
+    </div>
+    <ul id="search-results" class="max-h-72 overflow-y-auto py-1" aria-live="polite" aria-label="Search results"></ul>
+    <div class="px-3 py-2 border-t border-surface0 flex items-center gap-4 text-xs text-overlay0">
+      <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+      <span><kbd>Enter</kbd> open</span>
+      <span><kbd>Esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<!-- Toast for copy feedback -->
+<div id="copy-toast" class="toast">URL copied to clipboard</div>
+
+<!-- JS is in Base.astro to ensure execution in dev mode -->

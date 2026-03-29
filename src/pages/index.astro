@@ -1,0 +1,330 @@
+---
+import Base from '../layouts/Base.astro';
+
+import { parseFrontmatter, categoryLabels, RAW_BASE, type SpecMeta } from '../lib/specs';
+
+const specFiles = import.meta.glob('/specs/*.spec.md', { query: '?raw', import: 'default', eager: true });
+
+const specs = Object.entries(specFiles).map(([path, raw]) => {
+  const { meta } = parseFrontmatter(raw as string);
+  return meta;
+}).sort((a, b) => a.name.localeCompare(b.name));
+
+const categories: Record<string, { label: string; specs: SpecMeta[] }> = {};
+Object.entries(categoryLabels).forEach(([key, label]) => {
+  categories[key] = { label, specs: [] };
+});
+
+specs.forEach(spec => {
+  if (categories[spec.category]) {
+    categories[spec.category].specs.push(spec);
+  }
+});
+
+const HERO_CMD = `claude "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`;
+---
+
+<Base title="grclanker — GRC Compliance Automation Specs">
+
+  <!-- ═══ HERO ═══ -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 w-full h-full">
+      <img id="hero-img" src="/hero/command-center.webp" alt="Clanker robots at work" class="w-full h-full object-cover object-center" loading="eager" />
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-b from-base/60 via-base/75 to-base pointer-events-none"></div>
+    <div class="relative z-10 max-w-content mx-auto px-6 pt-12 md:pt-16 pb-16 md:pb-20 text-center">
+
+      <!-- Status pill -->
+      <div class="inline-flex items-center gap-2 bg-surface0/80 border border-surface1/60 rounded-full px-4 py-1.5 mb-4 md:mb-6">
+        <span class="w-2 h-2 rounded-full bg-green" id="status-dot"></span>
+        <span class="text-subtext1 text-xs" id="status-text">Mapping controls...</span>
+      </div>
+
+      <!-- Typewriter heading -->
+      <h1 class="text-2xl sm:text-4xl md:text-6xl font-bold text-text leading-tight mb-4 md:mb-6 min-h-[2.5rem] sm:min-h-[3rem] md:min-h-[4.5rem] hero-text-shadow">
+        Specs for <span class="text-blue">&gt;</span> <span class="text-lavender" id="typewriter"></span><span class="text-blue" id="cursor">&#9608;</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-subtext1 text-xl md:text-2xl leading-relaxed max-w-2xl mx-auto mb-3 font-medium">
+        Bring your own clanker. Build your own compliance.
+      </p>
+      <p class="text-subtext0 text-sm md:text-base max-w-xl mx-auto mb-8">
+        Open-source spec files for GRC compliance automation. 31 specs. Any agent.
+      </p>
+
+      <!-- Hero install command + badge -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 max-w-3xl mx-auto mb-4">
+        <img src="/badges/audited-by-clanker.webp" alt="Audited by Clanker" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full shrink-0" loading="eager" />
+        <div class="cmd-hero flex-1 w-full">
+          <code id="hero-cmd-text"><span class="text-blue">claude</span> <span class="text-peach">"Read {RAW_BASE}/aws-sec-inspector.spec.md and build the tool"</span></code>
+          <button class="cmd-hero-copy" id="hero-copy" data-cmd={HERO_CMD} aria-label="Copy command to clipboard">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <p class="text-subtext0 text-sm">Or browse the specs below</p>
+    </div>
+  </section>
+
+  <div class="max-w-content mx-auto px-6">
+
+    <!-- ═══ SPEC CATALOG ═══ -->
+    <section class="viewscreen rounded-lg p-6 md:p-8 mb-10 scanlines relative">
+      <div class="relative z-10">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="font-semibold text-sm tracking-widest uppercase text-blue">Spec Catalog</h2>
+          <span class="text-xs text-subtext0 font-mono">{specs.length} LOADED</span>
+        </div>
+
+        {Object.entries(categories).map(([key, { label, specs: catSpecs }]) => (
+          catSpecs.length > 0 && (
+            <div class="mb-10 last:mb-0">
+              <div class="relative h-16 rounded-t-lg overflow-hidden mb-3">
+                <img src={`/categories/${key}.webp`} alt="" class="w-full h-full object-cover" loading="lazy" />
+                <div class="absolute inset-0 bg-gradient-to-r from-base/80 via-base/40 to-base/80"></div>
+                <h3 class="absolute inset-0 flex items-center px-4 font-semibold text-xs text-text uppercase tracking-wider z-10">
+                  <span class="w-1.5 h-1.5 bg-blue/60 rounded-full mr-2"></span>
+                  {label}
+                </h3>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="text-left pb-2 pr-4 hud-label !text-blue/50 !font-semibold">Spec</th>
+                      <th scope="col" class="text-left pb-2 pr-4 hud-label !text-blue/50 !font-semibold hidden sm:table-cell">Vendor</th>
+                      <th scope="col" class="text-left pb-2 pr-4 hud-label !text-blue/50 !font-semibold hidden md:table-cell">Updated</th>
+                      <th scope="col" class="text-left pb-2 hud-label !text-blue/50 !font-semibold">URL</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {catSpecs.map(spec => (
+                      <tr class="border-t border-surface0/40 group">
+                        <td class="py-2.5 pr-4">
+                          <a href={`/specs/${spec.slug}`} class="font-medium text-blue group-hover:text-lavender transition-colors">
+                            {spec.name}
+                          </a>
+                        </td>
+                        <td class="py-2.5 pr-4 text-subtext0 hidden sm:table-cell">{spec.vendor}</td>
+                        <td class="py-2.5 pr-4 text-subtext0 text-xs font-mono hidden md:table-cell">{spec.last_updated}</td>
+                        <td class="py-2.5">
+                          <button
+                            class="copy-btn text-xs text-blue/40 hover:text-blue font-mono cursor-pointer transition-colors"
+                            data-url={`${RAW_BASE}/${spec.slug}.spec.md`}
+                            aria-label={`Copy raw URL for ${spec.name}`}
+                            onclick="let b=this;navigator.clipboard.writeText(b.dataset.url);b.textContent='COPIED';b.classList.add('copied');setTimeout(()=>{b.textContent='COPY';b.classList.remove('copied')},1500)"
+                          >
+                            COPY
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )
+        ))}
+      </div>
+    </section>
+
+    <!-- Pre-agent image break -->
+    <div class="relative rounded-lg overflow-hidden mb-10 h-28 md:h-40">
+      <img id="pre-agent-img" src="/hero/holographic.webp" alt="Clanker robots" class="w-full h-full object-cover object-center" loading="lazy" />
+      <div class="absolute inset-0 bg-gradient-to-t from-base/60 via-transparent to-base/60"></div>
+    </div>
+
+    <!-- ═══ USE WITH ANY AGENT ═══ -->
+    <section class="mb-10">
+      <h2 class="font-semibold text-sm tracking-widest uppercase text-blue mb-2">Use With Any Agent</h2>
+      <p class="text-subtext0 text-sm mb-6">Copy a command. Paste it into whatever you use.</p>
+
+      <details class="agent-group mb-3" open>
+        <summary class="agent-group-toggle">Terminal Agents</summary>
+        <div class="agent-group-content">
+          <div class="cmd-line" data-cmd={`claude "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
+            <span class="cmd-label">Claude Code</span>
+            <code><span class="text-blue">claude</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd={`codex "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
+            <span class="cmd-label">Codex CLI</span>
+            <code><span class="text-blue">codex</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd={`gemini "Read ${RAW_BASE}/aws-sec-inspector.spec.md and implement this spec"`}>
+            <span class="cmd-label">Gemini CLI</span>
+            <code><span class="text-blue">gemini</span> <span class="text-peach">"Read ...spec.md and implement this spec"</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd={`opencode -p "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
+            <span class="cmd-label">OpenCode</span>
+            <code><span class="text-blue">opencode</span> -p <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd={`droid exec "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
+            <span class="cmd-label">Droid</span>
+            <code><span class="text-blue">droid exec</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd={`pi "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
+            <span class="cmd-label">Pi</span>
+            <code><span class="text-blue">pi</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd={`aider --read ${RAW_BASE}/aws-sec-inspector.spec.md`}>
+            <span class="cmd-label">Aider</span>
+            <code><span class="text-blue">aider</span> --read <span class="text-lavender">...spec.md</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd={`goose "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
+            <span class="cmd-label">Goose</span>
+            <code><span class="text-blue">goose</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd={`amp "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
+            <span class="cmd-label">Amp</span>
+            <code><span class="text-blue">amp</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd={`crush "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
+            <span class="cmd-label">Crush</span>
+            <code><span class="text-blue">crush</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+        </div>
+      </details>
+
+      <details class="agent-group mb-3">
+        <summary class="agent-group-toggle">IDE Agents</summary>
+        <div class="agent-group-content">
+          <div class="cmd-line" data-cmd='@file aws-sec-inspector.spec.md "Implement this spec as a Go CLI tool"'>
+            <span class="cmd-label">Cursor / Windsurf</span>
+            <code><span class="text-blue">@file</span> aws-sec-inspector.spec.md <span class="text-peach">"Implement this spec"</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd="@workspace #file:aws-sec-inspector.spec.md implement this spec">
+            <span class="cmd-label">GitHub Copilot</span>
+            <code><span class="text-blue">@workspace</span> #file:aws-sec-inspector.spec.md implement this spec</code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd={`Paste this URL and build the tool: ${RAW_BASE}/aws-sec-inspector.spec.md`}>
+            <span class="cmd-label">Cline / Roo Code</span>
+            <code>Paste the raw URL into the chat</code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+        </div>
+      </details>
+
+      <details class="agent-group mb-3">
+        <summary class="agent-group-toggle">Any Chat Interface</summary>
+        <div class="agent-group-content">
+          <div class="cmd-line" data-cmd={`Here's a compliance automation spec: ${RAW_BASE}/aws-sec-inspector.spec.md — Build me the Go CLI tool it describes.`}>
+            <span class="cmd-label">Claude.ai / ChatGPT / Gemini</span>
+            <code>Here's a spec: <span class="text-lavender">...spec.md</span> — <span class="text-peach">Build me the Go CLI tool.</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+        </div>
+      </details>
+
+      <details class="agent-group mb-3">
+        <summary class="agent-group-toggle">Programmatic</summary>
+        <div class="agent-group-content">
+          <div class="cmd-line" data-cmd={`curl -s ${RAW_BASE}/aws-sec-inspector.spec.md | your-agent "Build this"`}>
+            <span class="cmd-label">Pipe to any LLM</span>
+            <code><span class="text-blue">curl</span> -s <span class="text-lavender">...spec.md</span> | your-agent <span class="text-peach">"Build this"</span></code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+          <div class="cmd-line" data-cmd="git clone https://github.com/ethanolivertroy/grclanker.git">
+            <span class="cmd-label">Clone all specs</span>
+            <code><span class="text-blue">git clone</span> https://github.com/ethanolivertroy/grclanker.git</code>
+            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Mid-page break -->
+    <div class="relative rounded-lg overflow-hidden mb-10 h-28 md:h-40">
+      <img id="mid-img" src="/mid-break.webp" alt="Clanker robots handing off a spec document" class="w-full h-full object-cover object-center" loading="lazy" />
+      <div class="absolute inset-0 bg-gradient-to-t from-base/60 via-transparent to-base/60"></div>
+    </div>
+
+    <!-- ═══ ROADMAP ═══ -->
+    <section class="panel rounded-lg p-6 md:p-8 mb-10 hud-corners">
+      <h2 class="font-semibold text-sm tracking-widest uppercase text-blue mb-3">What's Next</h2>
+      <p class="text-subtext0 text-sm">More specs. More tools. That's the plan. Check <a href="https://github.com/ethanolivertroy/grclanker">the repo</a> for updates.</p>
+    </section>
+
+
+  </div>
+</Base>
+
+<script is:inline>
+// Typewriter
+(function(){
+  var terms = ['FedRAMP','CMMC','SOC 2','PCI-DSS','NIST 800-53','DISA STIG','CIS Benchmarks','your agent'];
+  var el = document.getElementById('typewriter');
+  var cur = document.getElementById('cursor');
+  if (!el) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = terms[0]; return; }
+  var ti = 0, ci = 0, del = false;
+  function tick() {
+    var term = terms[ti];
+    if (!del) {
+      ci++;
+      el.textContent = term.slice(0, ci);
+      if (ci >= term.length) { del = true; setTimeout(tick, 1800); return; }
+      setTimeout(tick, 60);
+    } else {
+      ci--;
+      el.textContent = term.slice(0, ci);
+      if (ci <= 0) { del = false; ti = (ti + 1) % terms.length; setTimeout(tick, 300); return; }
+      setTimeout(tick, 35);
+    }
+  }
+  tick();
+})();
+// Status pill
+(function(){
+  var msgs = ['Mapping controls...','Collecting evidence...','Generating reports...','Validating configs...','Scanning posture...'];
+  var el = document.getElementById('status-text');
+  if (!el) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var i = 0;
+  setInterval(function(){ i = (i+1) % msgs.length; el.textContent = msgs[i]; }, 3000);
+})();
+// Hero copy
+(function(){
+  var btn = document.getElementById('hero-copy');
+  if (!btn) return;
+  btn.addEventListener('click', function(){
+    navigator.clipboard.writeText(btn.dataset.cmd);
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a6d189" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    setTimeout(function(){ btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'; }, 1500);
+  });
+})();
+// Cmd line copy buttons
+(function(){
+  document.querySelectorAll('.cmd-copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var cmd = btn.closest('.cmd-line').dataset.cmd;
+      navigator.clipboard.writeText(cmd);
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a6d189" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      setTimeout(function(){ btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'; }, 1500);
+    });
+  });
+})();
+// Randomize images
+(function(){
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  var heroes = ['/hero/command-center.webp','/hero/cockpit.webp','/hero/holographic.webp','/hero/assembly.webp'];
+  var mids = ['/mid-break.webp','/about-clanker.webp','/hero/command-center.webp','/hero/assembly.webp'];
+  var preAgent = ['/hero/holographic.webp','/hero/cockpit.webp','/mid-break.webp','/about-clanker.webp'];
+  var h = document.getElementById('hero-img'); if (h) h.src = pick(heroes);
+  var m = document.getElementById('mid-img'); if (m) m.src = pick(mids);
+  var p = document.getElementById('pre-agent-img'); if (p) p.src = pick(preAgent);
+})();
+</script>

@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Astro
+dist/
+.astro/
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+.vercel
+
+# Claude Code
+.agents/
+.claude/
+.factory/
+skills-lock.json
+
+# Internal docs (mascots, design refs, marketing)
+docs/
