@@ -7,7 +7,7 @@ language: go
 status: spec-only
 version: "1.0"
 last_updated: "2026-04-03"
-source_repo: https://github.com/ethanolivertroy/grclanker/tree/main/specs
+source_repo: "TBD"
 ---
 
 # ansible-sec-inspector — Architecture Specification
@@ -173,7 +173,7 @@ Max practical page size is 200.
 
 AAP supports query parameter filtering on most list endpoints:
 
-```
+```bash
 /api/v2/jobs/?status=failed&started__gt=2026-01-01T00:00:00Z
 /api/v2/jobs/?launch_type=manual&order_by=-started
 /api/v2/hosts/?last_job__isnull=true
@@ -216,7 +216,7 @@ not a single user object — check `count > 0` and read from `results[0]`.
 `{"detail":"Authentication credentials were not provided. To establish a
 login session, visit /api/login/."}` when session is not established.
 
-```
+```bash
 export AAP_URL=https://aap.example.com
 export AAP_USERNAME=your.username
 export AAP_PASSWORD=your.password
@@ -226,7 +226,7 @@ export AAP_PASSWORD=your.password
 
 For local (non-LDAP) AAP accounts, OAuth2 tokens can be created:
 
-```
+```bash
 POST /api/v2/tokens/
 {"description": "inspector-token", "application": null, "scope": "read"}
 Authorization: Basic base64(username:password)
@@ -235,7 +235,7 @@ Authorization: Basic base64(username:password)
 Response returns `{"token": "..."}`. Pass as `Authorization: Bearer <token>`
 on subsequent requests.
 
-```
+```bash
 export AAP_URL=https://aap.example.com
 export AAP_TOKEN=your-oauth2-token
 ```
@@ -248,22 +248,23 @@ export AAP_TOKEN=your-oauth2-token
 | `AAP_USERNAME` | Alt* | Username for session auth (LDAP accounts) |
 | `AAP_PASSWORD` | Alt* | Password for session auth (LDAP accounts) |
 | `AAP_TOKEN` | Alt* | OAuth2 Bearer token (local accounts only) |
-| `AAP_VERIFY_SSL` | Optional | Set `false` to skip TLS verification (Zscaler environments) |
+| `AAP_VERIFY_SSL` | Optional | Set `false` to skip TLS verification **only for approved non-production troubleshooting**. Production use requires an explicit risk acknowledgment. Do not normalize TLS bypass in automation. |
 | `AAP_TIMEOUT` | Optional | Request timeout in seconds (default: 30) |
 
 *Either `AAP_TOKEN` or both `AAP_USERNAME`/`AAP_PASSWORD` required.
 
 ### 3.4 Auth Implementation Note
 
-When building the HTTP client, construct the `Authorization` header manually
-using base64 encoding rather than relying on HTTP library auth helpers.
-This handles special characters in passwords and `@` symbols in usernames
-more reliably:
+When building the HTTP client, use the standard library's `SetBasicAuth()` method
+for Basic authentication:
 
 ```go
-creds := base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
-req.Header.Set("Authorization", "Basic " + creds)
+req.SetBasicAuth(username, password)
 ```
+
+This method is RFC 7617 compliant and handles special characters and `@` symbols
+in usernames and passwords correctly. Only fall back to manual base64 construction
+if a specific, tested AAP interoperability issue is documented with SetBasicAuth().
 
 ## 4. Security Controls
 
@@ -271,7 +272,7 @@ req.Header.Set("Authorization", "Basic " + creds)
 
 | # | Control | Severity | What Is Checked |
 |---|---|---|---|
-| 1 | **Job Success Rate** | High | Calculate success rate across all jobs in the audit period (default: 90 days). Flag if below 90%. Break down by playbook category. Identify which playbooks are driving failures. |
+| 1 | **Job Success Rate** | High | Calculate success rate across all jobs in the audit period (default: 90 days), filtering for `type=job` to exclude inventory syncs and project updates. Flag if below 90%. Break down by playbook category. Identify which playbooks are driving failures. |
 | 2 | **Chronic Playbook Failures** | High | Identify playbooks with >3 consecutive failures or >20% failure rate over the audit period. These indicate broken automation that is not being remediated. |
 | 3 | **Stuck or Long-Running Jobs** | Medium | Flag jobs in `running` or `pending` state for more than 2x their historical average runtime. Stuck jobs may indicate agent connectivity issues or resource exhaustion. |
 | 4 | **Manual Job Launch Rate** | Medium | Calculate what percentage of jobs were launched manually (`launch_type=manual`) vs. scheduled. High manual rates indicate the automation program is not functioning as intended. |
@@ -293,7 +294,7 @@ req.Header.Set("Authorization", "Basic " + creds)
 |---|---|---|---|
 | 11 | **Stale Job Templates** | Medium | Identify job templates with `last_job_run` older than 90 days or null. Templates that haven't run recently are candidates for cleanup or indicate a broken automation path. |
 | 12 | **Unscheduled Critical Templates** | High | Identify job templates covering patching, hardening, logging, and access control playbooks that have no associated schedule. Critical playbooks must run on a defined cadence. |
-| 13 | **Missed Scheduled Runs** | High | For scheduled jobs, compare `next_run` against current time and historical run cadence. Flag schedules where the last successful run is more than 1.5x the scheduled interval in the past. |
+| 13 | **Missed Scheduled Runs** | High | For scheduled jobs, validate both `next_run` against current time AND the delta between current time and `last_run` timestamp against the expected schedule interval. Flag schedules where the last successful run is more than 1.5x the scheduled interval in the past (scheduler may be stalled). |
 | 14 | **Disabled Schedules** | Medium | Flag job templates with schedules that exist but are disabled (`enabled=false`). These represent automation intent that has been turned off without a clear reason. |
 | 15 | **Workflow Coverage** | Low | Verify that critical multi-step automation paths (patch → validate → notify) are implemented as workflows, not just individual job templates. Single templates for multi-step processes are fragile. |
 
@@ -303,7 +304,7 @@ req.Header.Set("Authorization", "Basic " + creds)
 |---|---|---|---|
 | 16 | **Stale Credentials** | High | Identify credentials not modified in more than 90 days (machine credentials, vault passwords). Stale credentials may indicate passwords have not been rotated per policy. |
 | 17 | **Shared Credential Usage** | High | Identify credentials used by more than 5 different job templates. Broadly shared credentials violate least privilege — if one template is compromised, all share the exposure. |
-| 18 | **Unvaulted Secrets in Templates** | Critical | Check job template extra_vars and survey specs for patterns matching secrets (passwords, tokens, keys) stored in plaintext. Secrets should be in credential objects or Vault, not extra_vars. |
+| 18 | **Unvaulted Secrets in Templates** | Critical | Check job template extra_vars, survey specs, inventory variables, and group_vars/host_vars for patterns matching secrets (passwords, tokens, keys) stored in plaintext. Secrets should be in credential objects or Vault, not in variables or configuration files accessible via API. |
 | 19 | **Credential Ownership Gaps** | Medium | Identify credentials with no team owner and no user owner. Orphaned credentials cannot be audited or rotated through normal workflow. |
 | 20 | **OAuth2 Token Hygiene** | Medium | List all OAuth2 tokens; flag tokens with no expiration set, tokens older than 90 days, and tokens associated with disabled users. |
 
@@ -323,7 +324,7 @@ req.Header.Set("Authorization", "Basic " + creds)
 |---|---|---|---|
 | 26 | **Activity Stream Retention** | High | Verify that the activity stream is enabled and retaining records. Check `/api/v2/activity_stream/` for recent entries. Flag if no activity in 24 hours (may indicate logging is broken). |
 | 27 | **Notification Coverage** | Medium | Verify that failure notifications are configured for at least critical job templates. Jobs that fail silently are not being monitored. Check `/api/v2/notification_templates/` and template associations. |
-| 28 | **Concurrent Job Limit** | Low | Check `/api/v2/settings/jobs/` for `AWX_TASK_ENV` and concurrent job settings. Unrestricted concurrent jobs can cause resource exhaustion and execution failures. |
+| 28 | **Concurrent Job Limit** | Low | Check `/api/v2/settings/jobs/` and instance group capacity configurations for concurrency limits (e.g., `AD_HOC_COMMANDS_COUNT`, `SCHEDULE_MAX_JOBS`, instance group capacity). Unrestricted concurrent jobs can cause resource exhaustion and execution failures. |
 | 29 | **Project SCM Health** | Medium | Verify all projects have a valid SCM configuration and recent successful sync. Projects using `manual` SCM type store playbooks locally — no version control, no audit trail. |
 | 30 | **Execution Environment Inventory** | Low | Verify all job templates reference a specific execution environment rather than using defaults. Default EEs may include unnecessary packages or outdated images. |
 
@@ -388,7 +389,7 @@ about the platform's security posture.
 
 ## 7. Architecture
 
-```
+```text
 ansible-sec-inspector/
 ├── cmd/
 │   └── ansible-sec-inspector/
@@ -479,7 +480,7 @@ ansible-sec-inspector/
 
 ### Data Flow
 
-```
+```text
 ┌─────────────────┐     ┌──────────────────┐     ┌──────────────┐     ┌────────────┐
 │  Client          │────>│  Collector       │────>│  Analyzers   │────>│  Reporters │
 │  (AAP REST API)  │     │  (AAPData)       │     │  (Findings)  │     │  (Reports) │
@@ -521,9 +522,15 @@ ansible-sec-inspector/
   than attempting to read credential values. Unvaulted secret detection uses
   extra_vars pattern matching on job templates, not credential content inspection.
 
+- **Scalability consideration:** The AAPData monolithic container design may consume
+  excessive memory on large instances (>100k job records). Future implementations should
+  consider streaming or chunked processing architectures where analyzers consume data
+  incrementally rather than loading entire datasets into memory. This is acceptable for
+  spec-only phase but should be addressed during implementation if memory becomes a constraint.
+
 ## 8. CLI Interface
 
-```
+```bash
 # Basic audit with session auth (LDAP accounts)
 ansible-sec-inspector audit \
   --url https://aap.example.com \
@@ -614,7 +621,7 @@ ansible-sec-inspector audit --output json --output-file findings.json
 
 ### Flags Reference
 
-```
+```text
 Global Flags:
   --url string          AAP base URL (or AAP_URL env var)
   --username string     Username for session auth (or AAP_USERNAME env var)
