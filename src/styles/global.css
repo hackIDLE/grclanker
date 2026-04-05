@@ -414,6 +414,37 @@ code {
   border-radius: 0;
   max-height: 85vh;
   overflow-y: auto;
+  white-space: pre;
+  font-family: 'Google Sans Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+.fallback-line {
+  display: block;
+  padding: 0 1rem 0 1.25rem;
+}
+.fallback-line::before {
+  content: attr(data-line-number);
+  display: inline-block;
+  width: 3ch;
+  margin-right: 1rem;
+  color: #626880; /* overlay1 */
+  text-align: right;
+  user-select: none;
+}
+@media (max-width: 767px) {
+  .fallback-pre {
+    font-size: 0.75rem;
+    line-height: 1.6;
+  }
+  .fallback-line {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  .fallback-line::before {
+    width: 2ch;
+    margin-right: 0.75rem;
+  }
 }
 
 /* === Hero command block === */
