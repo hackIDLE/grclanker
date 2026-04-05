@@ -64,27 +64,27 @@ const HERO_CMD = `claude "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build t
         </div>
       </div>
 
-      <p class="text-subtext0 text-sm">Or browse the specs below</p>
+      <p class="text-subtext0 text-sm">Browse the specs below.</p>
     </div>
   </section>
 
   <div class="max-w-content mx-auto px-6">
 
     <!-- ═══ SPEC CATALOG ═══ -->
-    <section class="viewscreen rounded-lg p-6 md:p-8 mb-10 scanlines relative">
+    <section class="viewscreen rounded-lg p-5 md:p-6 mb-8 scanlines relative">
       <div class="relative z-10">
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center justify-between mb-6">
           <h2 class="font-semibold text-sm tracking-widest uppercase text-blue">Spec Catalog</h2>
           <span class="text-xs text-subtext0 font-mono">{specs.length} LOADED</span>
         </div>
 
         {Object.entries(categories).map(([key, { label, specs: catSpecs }]) => (
           catSpecs.length > 0 && (
-            <div class="mb-10 last:mb-0">
-              <div class="relative h-16 rounded-t-lg overflow-hidden mb-3">
+            <div class="mb-8 last:mb-0">
+              <div class="relative h-12 md:h-14 rounded-t-lg overflow-hidden mb-2.5">
                 <img src={`/categories/${key}.webp`} alt="" class="w-full h-full object-cover" loading="lazy" />
                 <div class="absolute inset-0 bg-gradient-to-r from-base/80 via-base/40 to-base/80"></div>
-                <h3 class="absolute inset-0 flex items-center px-4 font-semibold text-xs text-text uppercase tracking-wider z-10">
+                <h3 class="absolute inset-0 flex items-center px-4 font-semibold text-[0.6875rem] text-text uppercase tracking-[0.18em] z-10">
                   <span class="w-1.5 h-1.5 bg-blue/60 rounded-full mr-2"></span>
                   {label}
                 </h3>
@@ -96,22 +96,23 @@ const HERO_CMD = `claude "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build t
                       <th scope="col" class="text-left pb-2 pr-4 hud-label !text-blue/50 !font-semibold">Spec</th>
                       <th scope="col" class="text-left pb-2 pr-4 hud-label !text-blue/50 !font-semibold hidden sm:table-cell">Vendor</th>
                       <th scope="col" class="text-left pb-2 pr-4 hud-label !text-blue/50 !font-semibold hidden md:table-cell">Updated</th>
-                      <th scope="col" class="text-left pb-2 hud-label !text-blue/50 !font-semibold">URL</th>
+                      <th scope="col" class="text-right pb-2 hud-label !text-blue/50 !font-semibold">Raw URL</th>
                     </tr>
                   </thead>
                   <tbody>
                     {catSpecs.map(spec => (
-                      <tr class="border-t border-surface0/40 group">
-                        <td class="py-2.5 pr-4">
-                          <a href={`/specs/${spec.slug}`} class="font-medium text-blue group-hover:text-lavender transition-colors">
+                      <tr class="border-t border-surface0/40 transition-colors hover:bg-blue/[0.03]">
+                        <td class="py-3 pr-4 align-top">
+                          <a href={`/specs/${spec.slug}`} class="block font-semibold text-text hover:text-blue transition-colors leading-snug">
                             {spec.name}
                           </a>
+                          <span class="mt-1 block text-xs text-subtext0 sm:hidden">{spec.vendor}</span>
                         </td>
-                        <td class="py-2.5 pr-4 text-subtext0 hidden sm:table-cell">{spec.vendor}</td>
-                        <td class="py-2.5 pr-4 text-subtext0 text-xs font-mono hidden md:table-cell">{spec.last_updated}</td>
-                        <td class="py-2.5">
+                        <td class="py-3 pr-4 align-top text-subtext1 hidden sm:table-cell">{spec.vendor}</td>
+                        <td class="py-3 pr-4 align-top text-subtext0 text-[0.6875rem] font-mono uppercase tracking-[0.08em] hidden md:table-cell">{spec.last_updated}</td>
+                        <td class="py-3 text-right align-top">
                           <button
-                            class="copy-btn text-xs text-blue/40 hover:text-blue font-mono cursor-pointer transition-colors"
+                            class="copy-btn inline-flex items-center rounded-full border border-surface0 px-3 py-1 text-[0.65rem] font-semibold tracking-[0.14em] text-blue/70 hover:text-blue hover:border-blue/30 hover:bg-blue/10 font-mono cursor-pointer transition-colors"
                             data-url={`${RAW_BASE}/${spec.slug}.spec.md`}
                             aria-label={`Copy raw URL for ${spec.name}`}
                             onclick="let b=this;navigator.clipboard.writeText(b.dataset.url);b.textContent='COPIED';b.classList.add('copied');setTimeout(()=>{b.textContent='COPY';b.classList.remove('copied')},1500)"
@@ -130,16 +131,10 @@ const HERO_CMD = `claude "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build t
       </div>
     </section>
 
-    <!-- Pre-agent image break -->
-    <div class="relative rounded-lg overflow-hidden mb-10 h-28 md:h-40">
-      <img id="pre-agent-img" src="/hero/holographic.webp" alt="Clanker robots" class="w-full h-full object-cover object-center" loading="lazy" />
-      <div class="absolute inset-0 bg-gradient-to-t from-base/60 via-transparent to-base/60"></div>
-    </div>
-
     <!-- ═══ USE WITH ANY AGENT ═══ -->
-    <section class="mb-10">
+    <section class="mb-8">
       <h2 class="font-semibold text-sm tracking-widest uppercase text-blue mb-2">Use With Any Agent</h2>
-      <p class="text-subtext0 text-sm mb-6">Copy a command. Paste it into whatever you use.</p>
+      <p class="text-subtext0 text-sm mb-5">Copy a command. Paste it into whatever you use.</p>
 
       <details class="agent-group mb-3" open>
         <summary class="agent-group-toggle">Terminal Agents</summary>
@@ -172,11 +167,6 @@ const HERO_CMD = `claude "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build t
           <div class="cmd-line" data-cmd={`pi "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
             <span class="cmd-label">Pi</span>
             <code><span class="text-blue">pi</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd={`aider --read ${RAW_BASE}/aws-sec-inspector.spec.md`}>
-            <span class="cmd-label">Aider</span>
-            <code><span class="text-blue">aider</span> --read <span class="text-lavender">...spec.md</span></code>
             <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
           </div>
           <div class="cmd-line" data-cmd={`goose "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
@@ -246,14 +236,8 @@ const HERO_CMD = `claude "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build t
       </details>
     </section>
 
-    <!-- Mid-page break -->
-    <div class="relative rounded-lg overflow-hidden mb-10 h-28 md:h-40">
-      <img id="mid-img" src="/mid-break.webp" alt="Clanker robots handing off a spec document" class="w-full h-full object-cover object-center" loading="lazy" />
-      <div class="absolute inset-0 bg-gradient-to-t from-base/60 via-transparent to-base/60"></div>
-    </div>
-
     <!-- ═══ ROADMAP ═══ -->
-    <section class="panel rounded-lg p-6 md:p-8 mb-10 hud-corners">
+    <section class="mb-10 border-t border-surface0/60 pt-6 md:pt-8">
       <h2 class="font-semibold text-sm tracking-widest uppercase text-blue mb-3">What's Next</h2>
       <p class="text-subtext0 text-sm">More specs. More tools. That's the plan. Check <a href="https://github.com/ethanolivertroy/grclanker">the repo</a> for updates.</p>
     </section>
@@ -321,10 +305,6 @@ const HERO_CMD = `claude "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build t
 (function(){
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
   var heroes = ['/hero/command-center.webp','/hero/cockpit.webp','/hero/holographic.webp','/hero/assembly.webp'];
-  var mids = ['/mid-break.webp','/about-clanker.webp','/hero/command-center.webp','/hero/assembly.webp'];
-  var preAgent = ['/hero/holographic.webp','/hero/cockpit.webp','/mid-break.webp','/about-clanker.webp'];
   var h = document.getElementById('hero-img'); if (h) h.src = pick(heroes);
-  var m = document.getElementById('mid-img'); if (m) m.src = pick(mids);
-  var p = document.getElementById('pre-agent-img'); if (p) p.src = pick(preAgent);
 })();
 </script>
