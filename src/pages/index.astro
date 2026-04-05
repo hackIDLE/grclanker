@@ -1,310 +1,302 @@
 ---
 import Base from '../layouts/Base.astro';
+import { loadSpecs } from '../lib/specs';
 
-import { parseFrontmatter, categoryLabels, RAW_BASE, type SpecMeta } from '../lib/specs';
+const specCount = loadSpecs().length;
 
-const specFiles = import.meta.glob('/specs/*.spec.md', { query: '?raw', import: 'default', eager: true });
-
-const specs = Object.entries(specFiles).map(([path, raw]) => {
-  const { meta } = parseFrontmatter(raw as string);
-  return meta;
-}).sort((a, b) => a.name.localeCompare(b.name));
-
-const categories: Record<string, { label: string; specs: SpecMeta[] }> = {};
-Object.entries(categoryLabels).forEach(([key, label]) => {
-  categories[key] = { label, specs: [] };
-});
-
-specs.forEach(spec => {
-  if (categories[spec.category]) {
-    categories[spec.category].specs.push(spec);
-  }
-});
-
-const HERO_CMD = `claude "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`;
+const installOptions = [
+  {
+    key: 'curl',
+    label: 'One-liner',
+    command: 'curl -fsSL https://grclanker.com/install | bash',
+    detail: 'Builds the companion from the repo, installs the global grclanker command, and keeps npm publishing out of the critical path.',
+  },
+  {
+    key: 'source',
+    label: 'Manual build',
+    command: 'git clone https://github.com/ethanolivertroy/grclanker.git && cd grclanker/companion && npm install && npm run build && npm install -g .',
+    detail: 'Use this path if you want to inspect the package before installing it globally.',
+  },
+  {
+    key: 'dev',
+    label: 'Dev mode',
+    command: 'git clone https://github.com/ethanolivertroy/grclanker.git && cd grclanker/companion && npm install && npm run dev',
+    detail: 'Run the Pi-based companion directly from source while you iterate on prompts, tools, or workflows.',
+  },
+];
 ---
 
-<Base title="grclanker — GRC Compliance Automation Specs">
-
-  <!-- ═══ HERO ═══ -->
-  <section class="relative overflow-hidden">
+<Base title="grclanker — Companion + Spec Catalog" description="Install the local GRC companion, launch the Pi-based dashboard, or jump into the raw spec catalog when you just need the build plans.">
+  <section class="relative overflow-hidden border-b border-surface0/60">
     <div class="absolute inset-0 w-full h-full">
-      <img id="hero-img" src="/hero/command-center.webp" alt="Clanker robots at work" class="w-full h-full object-cover object-center" loading="eager" />
+      <img src="/hero/cockpit.webp" alt="Retro sci-fi cockpit interface" class="w-full h-full object-cover object-center" loading="eager" />
     </div>
-    <div class="absolute inset-0 bg-gradient-to-b from-base/60 via-base/75 to-base pointer-events-none"></div>
-    <div class="relative z-10 max-w-content mx-auto px-6 pt-12 md:pt-16 pb-16 md:pb-20 text-center">
+    <div class="absolute inset-0 bg-gradient-to-b from-base/55 via-base/80 to-base pointer-events-none"></div>
 
-      <!-- Status pill -->
-      <div class="inline-flex items-center gap-2 bg-surface0/80 border border-surface1/60 rounded-full px-4 py-1.5 mb-4 md:mb-6">
-        <span class="w-2 h-2 rounded-full bg-green" id="status-dot"></span>
-        <span class="text-subtext1 text-xs" id="status-text">Mapping controls...</span>
-      </div>
+    <div class="relative z-10 max-w-content mx-auto px-6 pt-12 pb-12 md:pt-16 md:pb-16">
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.95fr)] lg:items-start">
+        <div class="min-w-0">
+          <div class="inline-flex items-center gap-2 bg-surface0/80 border border-surface1/60 rounded-full px-4 py-1.5 mb-5">
+            <span class="w-2 h-2 rounded-full bg-green"></span>
+            <span class="text-subtext1 text-xs">Companion online // source-first install path ready</span>
+          </div>
 
-      <!-- Typewriter heading -->
-      <h1 class="text-2xl sm:text-4xl md:text-6xl font-bold text-text leading-tight mb-4 md:mb-6 min-h-[2.5rem] sm:min-h-[3rem] md:min-h-[4.5rem] hero-text-shadow">
-        Specs for <span class="text-blue">&gt;</span> <span class="text-lavender" id="typewriter"></span><span class="text-blue" id="cursor">&#9608;</span>
-      </h1>
+          <p class="hud-label mb-3">Companion Console</p>
+          <h1 class="font-bold text-3xl sm:text-4xl md:text-5xl text-text leading-tight hero-text-shadow">
+            Install the clanker. Run the audit.
+          </h1>
+          <p class="mt-4 max-w-3xl text-subtext1 text-base md:text-lg leading-relaxed">
+            The homepage is for the local companion now: a Pi-based GRC console with CMVP, KEV, and EPSS tools, workflow prompts, and a startup dashboard that feels like it belongs in the cockpit.
+          </p>
+          <p class="mt-2 max-w-2xl text-sm text-subtext0 leading-relaxed">
+            If you only want the raw build plans, the full {specCount}-spec catalog lives at <a href="/specs">/specs</a>.
+          </p>
 
-      <!-- Subtitle -->
-      <p class="text-subtext1 text-xl md:text-2xl leading-relaxed max-w-2xl mx-auto mb-3 font-medium">
-        Bring your own clanker. Build your own compliance.
-      </p>
-      <p class="text-subtext0 text-sm md:text-base max-w-xl mx-auto mb-8">
-        Open-source spec files for GRC compliance automation. 31 specs. Any agent.
-      </p>
+          <div id="companion-install" class="viewscreen rounded-xl scanlines relative mt-8 overflow-hidden">
+            <div class="relative z-10 p-5 md:p-6">
+              <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <h2 class="font-semibold text-sm tracking-widest uppercase text-blue">Install Path</h2>
+                  <p class="text-subtext0 text-sm mt-1">Pick the entry point that matches how much of the package you want to inspect.</p>
+                </div>
+                <div class="text-[0.6875rem] font-mono uppercase tracking-[0.16em] text-subtext0">
+                  Node 20+ required
+                </div>
+              </div>
 
-      <!-- Hero install command + badge -->
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 max-w-3xl mx-auto mb-4">
-        <img src="/badges/audited-by-clanker.webp" alt="Audited by Clanker" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full shrink-0" loading="eager" />
-        <div class="cmd-hero flex-1 w-full">
-          <code id="hero-cmd-text"><span class="text-blue">claude</span> <span class="text-peach">"Read {RAW_BASE}/aws-sec-inspector.spec.md and build the tool"</span></code>
-          <button class="cmd-hero-copy" id="hero-copy" data-cmd={HERO_CMD} aria-label="Copy command to clipboard">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          </button>
+              <div class="install-tabbar mt-5" role="tablist" aria-label="Install options">
+                {installOptions.map((option, index) => (
+                  <button
+                    type="button"
+                    class="install-tab"
+                    role="tab"
+                    aria-selected={index === 0 ? 'true' : 'false'}
+                    data-install-tab={option.key}
+                    data-active={index === 0 ? 'true' : 'false'}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+
+              {installOptions.map((option, index) => (
+                <div
+                  class="install-panel mt-4"
+                  data-install-panel={option.key}
+                  data-active={index === 0 ? 'true' : 'false'}
+                >
+                  <div class="panel rounded-xl p-4 md:p-5">
+                    <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                      <div class="min-w-0">
+                        <p class="hud-label !text-blue/70">Command</p>
+                        <code id={`install-command-${option.key}`} class="install-command mt-3">{option.command}</code>
+                      </div>
+                      <button
+                        type="button"
+                        class="copy-btn rounded-full border border-surface0 px-3 py-1 text-[0.65rem] font-semibold tracking-[0.14em] text-blue/70 hover:text-blue hover:border-blue/30 hover:bg-blue/10 font-mono cursor-pointer transition-colors shrink-0"
+                        data-install-copy={option.key}
+                        data-command={option.command}
+                      >
+                        COPY
+                      </button>
+                    </div>
+                    <p class="text-sm text-subtext0 mt-4 leading-relaxed">{option.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="mt-5 flex flex-wrap items-center gap-3 text-[0.75rem] font-mono uppercase tracking-[0.12em]">
+            <a href="#operations" class="inline-flex items-center gap-2 rounded-full border border-blue/30 bg-blue/10 px-4 py-2 text-blue hover:bg-blue/15 transition-colors">
+              Get Started
+            </a>
+            <a href="https://github.com/ethanolivertroy/grclanker" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full border border-surface0 bg-mantle/70 px-4 py-2 text-subtext1 hover:text-text hover:border-surface1 transition-colors">
+              GitHub
+            </a>
+            <a href="/specs" class="text-subtext0 hover:text-blue transition-colors">
+              Need just the specs?
+            </a>
+          </div>
         </div>
-      </div>
 
-      <p class="text-subtext0 text-sm">Browse the specs below.</p>
+        <aside class="viewscreen rounded-xl scanlines relative overflow-hidden">
+          <div class="relative z-10 p-5 md:p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-semibold text-sm tracking-widest uppercase text-blue">Startup Profile</h2>
+              <span class="text-[0.6875rem] font-mono uppercase tracking-[0.16em] text-subtext0">boot sequence</span>
+            </div>
+
+            <div class="panel rounded-lg p-4 text-[0.8125rem] leading-7 text-subtext1">
+              <div class="text-blue">grclanker v0.1.0</div>
+              <div>12 tools online</div>
+              <div>8 domain tools ready</div>
+              <div>2 subagents mounted</div>
+              <div>4 workflow prompts armed</div>
+              <div class="text-subtext0">/investigate /audit /assess /validate</div>
+            </div>
+
+            <div class="mt-4 space-y-3 text-sm">
+              <div class="flex items-start justify-between gap-3 border-b border-surface0/50 pb-3">
+                <span class="hud-label !text-blue/60">domain tools</span>
+                <span class="text-right text-subtext1">CMVP search, KEV lookup, EPSS scoring, ransomware checks</span>
+              </div>
+              <div class="flex items-start justify-between gap-3 border-b border-surface0/50 pb-3">
+                <span class="hud-label !text-blue/60">session tone</span>
+                <span class="text-right text-subtext1">evidence first, control mapped, direct about uncertainty</span>
+              </div>
+              <div class="flex items-start justify-between gap-3">
+                <span class="hud-label !text-blue/60">spec standby</span>
+                <span class="text-right text-subtext1">{specCount} raw build plans still available at /specs</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   </section>
 
-  <div class="max-w-content mx-auto px-6">
+  <div class="max-w-content mx-auto px-6 py-8 md:py-10 space-y-8">
+    <section id="operations" class="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)]">
+      <div class="viewscreen rounded-xl scanlines relative overflow-hidden">
+        <div class="relative z-10 p-5 md:p-6">
+          <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 class="font-semibold text-sm tracking-widest uppercase text-blue">Operational Surface</h2>
+              <p class="text-subtext0 text-sm mt-1">What the companion answers without leaving the terminal.</p>
+            </div>
+            <div class="text-[0.6875rem] font-mono uppercase tracking-[0.16em] text-subtext0">
+              Pi + local prompts
+            </div>
+          </div>
 
-    <!-- ═══ SPEC CATALOG ═══ -->
-    <section class="viewscreen rounded-lg p-5 md:p-6 mb-8 scanlines relative">
-      <div class="relative z-10">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="font-semibold text-sm tracking-widest uppercase text-blue">Spec Catalog</h2>
-          <span class="text-xs text-subtext0 font-mono">{specs.length} LOADED</span>
-        </div>
-
-        {Object.entries(categories).map(([key, { label, specs: catSpecs }]) => (
-          catSpecs.length > 0 && (
-            <div class="mb-8 last:mb-0">
-              <div class="relative h-12 md:h-14 rounded-t-lg overflow-hidden mb-2.5">
-                <img src={`/categories/${key}.webp`} alt="" class="w-full h-full object-cover" loading="lazy" />
-                <div class="absolute inset-0 bg-gradient-to-r from-base/80 via-base/40 to-base/80"></div>
-                <h3 class="absolute inset-0 flex items-center px-4 font-semibold text-[0.6875rem] text-text uppercase tracking-[0.18em] z-10">
-                  <span class="w-1.5 h-1.5 bg-blue/60 rounded-full mr-2"></span>
-                  {label}
-                </h3>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                  <thead>
-                    <tr>
-                      <th scope="col" class="text-left pb-2 pr-4 hud-label !text-blue/50 !font-semibold">Spec</th>
-                      <th scope="col" class="text-left pb-2 pr-4 hud-label !text-blue/50 !font-semibold hidden sm:table-cell">Vendor</th>
-                      <th scope="col" class="text-left pb-2 pr-4 hud-label !text-blue/50 !font-semibold hidden md:table-cell">Updated</th>
-                      <th scope="col" class="text-right pb-2 hud-label !text-blue/50 !font-semibold">Raw URL</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {catSpecs.map(spec => (
-                      <tr class="border-t border-surface0/40 transition-colors hover:bg-blue/[0.03]">
-                        <td class="py-3 pr-4 align-top">
-                          <a href={`/specs/${spec.slug}`} class="block font-semibold text-text hover:text-blue transition-colors leading-snug">
-                            {spec.name}
-                          </a>
-                          <span class="mt-1 block text-xs text-subtext0 sm:hidden">{spec.vendor}</span>
-                        </td>
-                        <td class="py-3 pr-4 align-top text-subtext1 hidden sm:table-cell">{spec.vendor}</td>
-                        <td class="py-3 pr-4 align-top text-subtext0 text-[0.6875rem] font-mono uppercase tracking-[0.08em] hidden md:table-cell">{spec.last_updated}</td>
-                        <td class="py-3 text-right align-top">
-                          <button
-                            class="copy-btn inline-flex items-center rounded-full border border-surface0 px-3 py-1 text-[0.65rem] font-semibold tracking-[0.14em] text-blue/70 hover:text-blue hover:border-blue/30 hover:bg-blue/10 font-mono cursor-pointer transition-colors"
-                            data-url={`${RAW_BASE}/${spec.slug}.spec.md`}
-                            aria-label={`Copy raw URL for ${spec.name}`}
-                            onclick="let b=this;navigator.clipboard.writeText(b.dataset.url);b.textContent='COPIED';b.classList.add('copied');setTimeout(()=>{b.textContent='COPY';b.classList.remove('copied')},1500)"
-                          >
-                            COPY
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          <div class="grid gap-6 mt-6 md:grid-cols-[minmax(0,1.2fr)_minmax(14rem,0.8fr)]">
+            <div class="panel rounded-lg p-4">
+              <p class="hud-label !text-blue/60 mb-3">Primary Instruments</p>
+              <div class="space-y-3 text-sm">
+                <div class="flex items-start justify-between gap-4 border-b border-surface0/50 pb-3">
+                  <span class="text-text">cmvp_search_modules</span>
+                  <span class="text-right text-subtext0">active FIPS validations by vendor, module, or cert ID</span>
+                </div>
+                <div class="flex items-start justify-between gap-4 border-b border-surface0/50 pb-3">
+                  <span class="text-text">cmvp_search_historical</span>
+                  <span class="text-right text-subtext0">expired or revoked module history for drift checks</span>
+                </div>
+                <div class="flex items-start justify-between gap-4 border-b border-surface0/50 pb-3">
+                  <span class="text-text">cmvp_search_in_process</span>
+                  <span class="text-right text-subtext0">pipeline visibility for modules still in validation</span>
+                </div>
+                <div class="flex items-start justify-between gap-4 border-b border-surface0/50 pb-3">
+                  <span class="text-text">cmvp_get_module</span>
+                  <span class="text-right text-subtext0">certificate-level detail when you already have the ID</span>
+                </div>
+                <div class="flex items-start justify-between gap-4 border-b border-surface0/50 pb-3">
+                  <span class="text-text">kevs_search</span>
+                  <span class="text-right text-subtext0">CISA KEV lookups with EPSS enrichment</span>
+                </div>
+                <div class="flex items-start justify-between gap-4 border-b border-surface0/50 pb-3">
+                  <span class="text-text">kevs_get_epss</span>
+                  <span class="text-right text-subtext0">30-day exploit probability for one or more CVEs</span>
+                </div>
+                <div class="flex items-start justify-between gap-4 border-b border-surface0/50 pb-3">
+                  <span class="text-text">kevs_recent</span>
+                  <span class="text-right text-subtext0">recently added exploited vulns for fast triage</span>
+                </div>
+                <div class="flex items-start justify-between gap-4">
+                  <span class="text-text">kevs_check_ransomware</span>
+                  <span class="text-right text-subtext0">KEV entries with known ransomware campaign use</span>
+                </div>
               </div>
             </div>
-          )
-        ))}
+
+            <div class="panel rounded-lg p-4">
+              <p class="hud-label !text-blue/60 mb-3">Why it exists</p>
+              <div class="space-y-3 text-sm leading-relaxed text-subtext1">
+                <p>The companion is for fast evidence gathering and posture triage when you do not want to bounce between CMVP, KEV, EPSS, and framework notes by hand.</p>
+                <p>It stays direct: certificate IDs, CVE IDs, due dates, exploit probability, and control references instead of vague security prose.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-5">
+        <div class="viewscreen rounded-xl scanlines relative overflow-hidden">
+          <div class="relative z-10 p-5">
+            <h2 class="font-semibold text-sm tracking-widest uppercase text-blue">Workflow Deck</h2>
+            <div class="mt-4 space-y-3 text-sm">
+              <div class="panel rounded-lg p-3">
+                <div class="text-text">/investigate</div>
+                <div class="text-subtext0 mt-1">Trace crypto status, KEVs, EPSS, and ransomware linkage for a subject.</div>
+              </div>
+              <div class="panel rounded-lg p-3">
+                <div class="text-text">/audit</div>
+                <div class="text-subtext0 mt-1">Map gathered evidence against the requested framework and rank remediation.</div>
+              </div>
+              <div class="panel rounded-lg p-3">
+                <div class="text-text">/assess</div>
+                <div class="text-subtext0 mt-1">Produce a posture readout with confidence, major risks, and next actions.</div>
+              </div>
+              <div class="panel rounded-lg p-3">
+                <div class="text-text">/validate</div>
+                <div class="text-subtext0 mt-1">Answer the narrow FIPS question cleanly: active, expired, in process, or absent.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="viewscreen rounded-xl scanlines relative overflow-hidden">
+          <div class="relative z-10 p-5">
+            <h2 class="font-semibold text-sm tracking-widest uppercase text-blue">Spec Handoff</h2>
+            <p class="mt-3 text-sm text-subtext1 leading-relaxed">
+              The companion handles live GRC workflows. The raw spec library stays separate so you can still grab the Markdown and feed it to any coding agent without installing anything.
+            </p>
+            <div class="panel rounded-lg p-4 mt-4">
+              <p class="hud-label !text-blue/60 mb-2">Catalog status</p>
+              <div class="text-text text-sm">{specCount} spec files // raw URLs // agent-agnostic prompts</div>
+              <a href="/specs" class="inline-flex items-center gap-2 mt-4 rounded-full border border-surface0 px-4 py-2 text-[0.75rem] font-mono uppercase tracking-[0.12em] text-subtext1 hover:text-blue hover:border-blue/30 transition-colors">
+                Open /specs
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
-
-    <!-- ═══ USE WITH ANY AGENT ═══ -->
-    <section class="mb-8">
-      <h2 class="font-semibold text-sm tracking-widest uppercase text-blue mb-2">Use With Any Agent</h2>
-      <p class="text-subtext0 text-sm mb-5">Copy a command. Paste it into whatever you use.</p>
-
-      <details class="agent-group mb-3" open>
-        <summary class="agent-group-toggle">Terminal Agents</summary>
-        <div class="agent-group-content">
-          <div class="cmd-line" data-cmd={`claude "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
-            <span class="cmd-label">Claude Code</span>
-            <code><span class="text-blue">claude</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd={`codex "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
-            <span class="cmd-label">Codex CLI</span>
-            <code><span class="text-blue">codex</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd={`gemini "Read ${RAW_BASE}/aws-sec-inspector.spec.md and implement this spec"`}>
-            <span class="cmd-label">Gemini CLI</span>
-            <code><span class="text-blue">gemini</span> <span class="text-peach">"Read ...spec.md and implement this spec"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd={`opencode -p "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
-            <span class="cmd-label">OpenCode</span>
-            <code><span class="text-blue">opencode</span> -p <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd={`droid exec "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
-            <span class="cmd-label">Droid</span>
-            <code><span class="text-blue">droid exec</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd={`pi "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
-            <span class="cmd-label">Pi</span>
-            <code><span class="text-blue">pi</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd={`goose "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
-            <span class="cmd-label">Goose</span>
-            <code><span class="text-blue">goose</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd={`amp "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
-            <span class="cmd-label">Amp</span>
-            <code><span class="text-blue">amp</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd={`crush "Read ${RAW_BASE}/aws-sec-inspector.spec.md and build the tool"`}>
-            <span class="cmd-label">Crush</span>
-            <code><span class="text-blue">crush</span> <span class="text-peach">"Read ...spec.md and build the tool"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-        </div>
-      </details>
-
-      <details class="agent-group mb-3">
-        <summary class="agent-group-toggle">IDE Agents</summary>
-        <div class="agent-group-content">
-          <div class="cmd-line" data-cmd='@file aws-sec-inspector.spec.md "Implement this spec as a Go CLI tool"'>
-            <span class="cmd-label">Cursor / Windsurf</span>
-            <code><span class="text-blue">@file</span> aws-sec-inspector.spec.md <span class="text-peach">"Implement this spec"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd="@workspace #file:aws-sec-inspector.spec.md implement this spec">
-            <span class="cmd-label">GitHub Copilot</span>
-            <code><span class="text-blue">@workspace</span> #file:aws-sec-inspector.spec.md implement this spec</code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd={`Paste this URL and build the tool: ${RAW_BASE}/aws-sec-inspector.spec.md`}>
-            <span class="cmd-label">Cline / Roo Code</span>
-            <code>Paste the raw URL into the chat</code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-        </div>
-      </details>
-
-      <details class="agent-group mb-3">
-        <summary class="agent-group-toggle">Any Chat Interface</summary>
-        <div class="agent-group-content">
-          <div class="cmd-line" data-cmd={`Here's a compliance automation spec: ${RAW_BASE}/aws-sec-inspector.spec.md — Build me the Go CLI tool it describes.`}>
-            <span class="cmd-label">Claude.ai / ChatGPT / Gemini</span>
-            <code>Here's a spec: <span class="text-lavender">...spec.md</span> — <span class="text-peach">Build me the Go CLI tool.</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-        </div>
-      </details>
-
-      <details class="agent-group mb-3">
-        <summary class="agent-group-toggle">Programmatic</summary>
-        <div class="agent-group-content">
-          <div class="cmd-line" data-cmd={`curl -s ${RAW_BASE}/aws-sec-inspector.spec.md | your-agent "Build this"`}>
-            <span class="cmd-label">Pipe to any LLM</span>
-            <code><span class="text-blue">curl</span> -s <span class="text-lavender">...spec.md</span> | your-agent <span class="text-peach">"Build this"</span></code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-          <div class="cmd-line" data-cmd="git clone https://github.com/ethanolivertroy/grclanker.git">
-            <span class="cmd-label">Clone all specs</span>
-            <code><span class="text-blue">git clone</span> https://github.com/ethanolivertroy/grclanker.git</code>
-            <button class="cmd-copy" aria-label="Copy command"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
-          </div>
-        </div>
-      </details>
-    </section>
-
-    <!-- ═══ ROADMAP ═══ -->
-    <section class="mb-10 border-t border-surface0/60 pt-6 md:pt-8">
-      <h2 class="font-semibold text-sm tracking-widest uppercase text-blue mb-3">What's Next</h2>
-      <p class="text-subtext0 text-sm">More specs. More tools. That's the plan. Check <a href="https://github.com/ethanolivertroy/grclanker">the repo</a> for updates.</p>
-    </section>
-
-
   </div>
 </Base>
 
 <script is:inline>
-// Typewriter
-(function(){
-  var terms = ['FedRAMP','CMMC','SOC 2','PCI-DSS','NIST 800-53','DISA STIG','CIS Benchmarks','your agent'];
-  var el = document.getElementById('typewriter');
-  var cur = document.getElementById('cursor');
-  if (!el) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = terms[0]; return; }
-  var ti = 0, ci = 0, del = false;
-  function tick() {
-    var term = terms[ti];
-    if (!del) {
-      ci++;
-      el.textContent = term.slice(0, ci);
-      if (ci >= term.length) { del = true; setTimeout(tick, 1800); return; }
-      setTimeout(tick, 60);
-    } else {
-      ci--;
-      el.textContent = term.slice(0, ci);
-      if (ci <= 0) { del = false; ti = (ti + 1) % terms.length; setTimeout(tick, 300); return; }
-      setTimeout(tick, 35);
-    }
+(() => {
+  const tabs = Array.from(document.querySelectorAll('[data-install-tab]'));
+  const panels = Array.from(document.querySelectorAll('[data-install-panel]'));
+
+  function setActive(key) {
+    tabs.forEach((tab) => {
+      const active = tab.dataset.installTab === key;
+      tab.dataset.active = active ? 'true' : 'false';
+      tab.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+
+    panels.forEach((panel) => {
+      panel.dataset.active = panel.dataset.installPanel === key ? 'true' : 'false';
+    });
   }
-  tick();
-})();
-// Status pill
-(function(){
-  var msgs = ['Mapping controls...','Collecting evidence...','Generating reports...','Validating configs...','Scanning posture...'];
-  var el = document.getElementById('status-text');
-  if (!el) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var i = 0;
-  setInterval(function(){ i = (i+1) % msgs.length; el.textContent = msgs[i]; }, 3000);
-})();
-// Hero copy
-(function(){
-  var btn = document.getElementById('hero-copy');
-  if (!btn) return;
-  btn.addEventListener('click', function(){
-    navigator.clipboard.writeText(btn.dataset.cmd);
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a6d189" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-    setTimeout(function(){ btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'; }, 1500);
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => setActive(tab.dataset.installTab));
   });
-})();
-// Cmd line copy buttons
-(function(){
-  document.querySelectorAll('.cmd-copy').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var cmd = btn.closest('.cmd-line').dataset.cmd;
-      navigator.clipboard.writeText(cmd);
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a6d189" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-      setTimeout(function(){ btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'; }, 1500);
+
+  document.querySelectorAll('[data-install-copy]').forEach((button) => {
+    button.addEventListener('click', () => {
+      navigator.clipboard.writeText(button.dataset.command);
+      const original = button.textContent;
+      button.textContent = 'COPIED';
+      button.classList.add('copied');
+      setTimeout(() => {
+        button.textContent = original;
+        button.classList.remove('copied');
+      }, 1500);
     });
   });
-})();
-// Randomize images
-(function(){
-  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-  var heroes = ['/hero/command-center.webp','/hero/cockpit.webp','/hero/holographic.webp','/hero/assembly.webp'];
-  var h = document.getElementById('hero-img'); if (h) h.src = pick(heroes);
 })();
 </script>

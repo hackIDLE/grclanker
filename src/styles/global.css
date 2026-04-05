@@ -572,6 +572,58 @@ details[open] > .agent-group-toggle::before {
   color: #c6d0f5; /* text */
 }
 
+/* === Install tabs === */
+.install-tabbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.install-tab {
+  border: 1px solid #414559; /* surface0 */
+  background: rgba(35, 38, 52, 0.45); /* crust */
+  color: #a5adce; /* subtext0 */
+  border-radius: 999px;
+  padding: 0.55rem 0.95rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.install-tab:hover {
+  color: #c6d0f5; /* text */
+  border-color: #626880; /* surface2 */
+}
+
+.install-tab[data-active="true"] {
+  color: #8caaee; /* blue */
+  border-color: rgba(140, 170, 238, 0.35); /* blue */
+  background: rgba(140, 170, 238, 0.08);
+}
+
+.install-panel {
+  display: none;
+}
+
+.install-panel[data-active="true"] {
+  display: block;
+}
+
+.install-command {
+  display: block;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #c6d0f5; /* text */
+  line-height: 1.7;
+}
+
 /* === Copy button feedback === */
 .copy-btn {
   transition: all 0.15s ease;

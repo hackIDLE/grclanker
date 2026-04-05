@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_OWNER="${GRCLANKER_REPO_OWNER:-ethanolivertroy}"
+REPO_NAME="${GRCLANKER_REPO_NAME:-grclanker}"
+REF="${GRCLANKER_REF:-main}"
+ARCHIVE_URL="${GRCLANKER_ARCHIVE_URL:-https://codeload.github.com/${REPO_OWNER}/${REPO_NAME}/tar.gz/refs/heads/${REF}}"
+PACKAGE_SUBDIR="companion"
+
+# ── Colors ──────────────────────────────────────────────────────────
+if [ -t 1 ]; then
+  B="\033[1m" D="\033[2m"
+  BLUE="\033[38;2;140;170;238m"
+  GREEN="\033[38;2;166;209;137m"
+  RED="\033[38;2;231;130;132m"
+  R="\033[0m"
+else
+  B="" D="" BLUE="" GREEN="" RED="" R=""
+fi
+
+log()  { printf "  ${BLUE}▸${R} %s\n" "$*"; }
+ok()   { printf "  ${GREEN}✓${R} %s\n" "$*"; }
+warn() { printf "  ${RED}!${R} %s\n" "$*" >&2; }
+fail() { printf "  ${RED}✗${R} %s\n" "$*" >&2; exit 1; }
+
+need_cmd() {
+  command -v "$1" >/dev/null 2>&1 || fail "missing required command: $1"
+}
+
+banner() {
+  printf "\n"
+  printf "${BLUE}    ____ ____   ____ _        _    _   _ _  _______ ____  ${R}\n"
+  printf "${BLUE}   / ___|  _ \\\\ / ___| |      / \\\\  | \\\\ | | |/ / ____|  _ \\\\ ${R}\n"
+  printf "${BLUE}  | |  _| |_) | |   | |     / _ \\\\ |  \\\\| | ' /|  _| | |_) |${R}\n"
+  printf "${BLUE}  | |_| |  _ <| |___| |___ / ___ \\\\| |\\\\  | . \\\\| |___|  _ < ${R}\n"
+  printf "${BLUE}   \\\\____|_| \\\\_\\\\\\\\____|_____/_/   \\\\_\\\\_| \\\\_|_|\\\\_\\\\_____|_| \\\\_\\\\${R}\n"
+  printf "\n"
+  printf "  ${D}Local GRC companion on Pi${R}\n\n"
+}
+
+banner
+
+need_cmd curl
+need_cmd tar
+need_cmd node
+need_cmd npm
+ok "Prerequisites found"
+
+node_major="$(node -p "Number(process.versions.node.split('.')[0])")"
+if [ "$node_major" -lt 20 ]; then
+  fail "Node.js 20+ is required (found $(node -v))"
+fi
+ok "Node.js $(node -v)"
+
+tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/grclanker-install.XXXXXX")"
+cleanup() {
+  rm -rf "$tmp_dir"
+}
+trap cleanup EXIT
+
+archive_path="$tmp_dir/grclanker.tar.gz"
+
+log "Fetching ${REPO_OWNER}/${REPO_NAME} @ ${REF}"
+curl -fsSL "$ARCHIVE_URL" -o "$archive_path"
+ok "Downloaded"
+
+log "Unpacking"
+tar -xzf "$archive_path" -C "$tmp_dir"
+
+source_root="$(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -name "${REPO_NAME}-*" | head -n 1)"
+[ -n "$source_root" ] || fail "unable to locate unpacked source tree"
+
+package_dir="${source_root}/${PACKAGE_SUBDIR}"
+[ -d "$package_dir" ] || fail "missing package directory: ${PACKAGE_SUBDIR}"
+
+cd "$package_dir"
+
+log "Installing dependencies"
+npm install --no-fund --no-audit >/dev/null 2>&1
+ok "Dependencies installed"
+
+log "Building"
+npm run build >/dev/null 2>&1
+ok "Built"
+
+log "Installing global command"
+if ! npm install -g . --no-fund --no-audit >/dev/null 2>&1; then
+  fail "Global install failed. Ensure npm global prefix is writable."
+fi
+
+global_bin="$(npm prefix -g)/bin"
+
+if [ -x "${global_bin}/grclanker" ]; then
+  ok "Installed → ${global_bin}/grclanker"
+else
+  warn "Install completed but ${global_bin}/grclanker not found"
+fi
+
+if [[ ":$PATH:" != *":${global_bin}:"* ]]; then
+  warn "your PATH does not include ${global_bin}"
+  shell_name="$(basename "${SHELL:-}")"
+  case "$shell_name" in
+    zsh)
+      warn "add this to ~/.zshrc: export PATH=\"${global_bin}:\$PATH\""
+      ;;
+    bash)
+      warn "add this to ~/.bashrc: export PATH=\"${global_bin}:\$PATH\""
+      ;;
+    *)
+      warn "export PATH=\"${global_bin}:\$PATH\" before running grclanker"
+      ;;
+  esac
+fi
+
+printf "\n"
+printf "  ${GREEN}${B}Ready.${R} Run ${B}grclanker${R} to start.\n"
+printf "\n"
+printf "  ${D}Commands:${R}\n"
+printf "    grclanker               interactive agent\n"
+printf "    grclanker investigate    crypto + vulnerability check\n"
+printf "    grclanker audit          compliance audit\n"
+printf "    grclanker assess         posture assessment\n"
+printf "    grclanker validate       FIPS validation check\n"
+printf "\n"

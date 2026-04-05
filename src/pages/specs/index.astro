@@ -1,0 +1,69 @@
+---
+import Base from '../../layouts/Base.astro';
+import AgentCommandsSection from '../../components/AgentCommandsSection.astro';
+import SpecCatalogSection from '../../components/SpecCatalogSection.astro';
+import { RAW_BASE, loadSpecs } from '../../lib/specs';
+
+const specs = loadSpecs();
+const heroCommand = `curl -O ${RAW_BASE}/aws-sec-inspector.spec.md`;
+---
+
+<Base title="Specs — grclanker" description="Browse raw GRC automation specs, copy the URL, and hand the file to any agent.">
+  <section class="relative overflow-hidden border-b border-surface0/60">
+    <div class="absolute inset-0 w-full h-full">
+      <img src="/hero/holographic.webp" alt="Spec catalog cockpit display" class="w-full h-full object-cover object-center" loading="eager" />
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-b from-base/55 via-base/78 to-base pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-content mx-auto px-6 pt-14 pb-14 md:pt-18 md:pb-18">
+      <div class="inline-flex items-center gap-2 bg-surface0/80 border border-surface1/60 rounded-full px-4 py-1.5 mb-5">
+        <span class="w-2 h-2 rounded-full bg-blue"></span>
+        <span class="text-subtext1 text-xs">{specs.length} raw specs online</span>
+      </div>
+
+      <div class="max-w-3xl">
+        <p class="hud-label mb-3">/specs</p>
+        <h1 class="font-bold text-3xl sm:text-4xl md:text-5xl text-text leading-tight hero-text-shadow">
+          The spec is the build plan.
+        </h1>
+        <p class="mt-4 max-w-2xl text-subtext1 text-base md:text-lg leading-relaxed">
+          Pull the raw Markdown, hand it to Claude, Codex, Gemini, Cursor, or whatever else you trust, and let the file do the work.
+        </p>
+        <p class="mt-2 text-sm text-subtext0">
+          Keyboard-first: use <kbd>/</kbd> or <kbd>Cmd+K</kbd> anywhere on the site to jump to a spec.
+        </p>
+      </div>
+
+      <div class="mt-8 max-w-3xl">
+        <div class="cmd-hero">
+          <code id="spec-hero-command">{heroCommand}</code>
+          <button class="cmd-hero-copy" id="spec-hero-copy" data-cmd={heroCommand} aria-label="Copy raw spec command">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-content mx-auto px-6 py-8 md:py-10">
+    <SpecCatalogSection />
+    <AgentCommandsSection />
+  </div>
+</Base>
+
+<script is:inline>
+(() => {
+  const button = document.getElementById('spec-hero-copy');
+  if (!button) return;
+  button.addEventListener('click', () => {
+    navigator.clipboard.writeText(button.dataset.cmd);
+    button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a6d189" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    setTimeout(() => {
+      button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    }, 1500);
+  });
+})();
+</script>

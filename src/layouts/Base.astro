@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import CommandPalette from '../components/CommandPalette.astro';
 import ShortcutsHelp from '../components/ShortcutsHelp.astro';
-import { parseFrontmatter, categoryLabels } from '../lib/specs';
+import { categoryLabels, loadSpecs } from '../lib/specs';
 
 interface Props {
   title: string;
@@ -12,9 +12,7 @@ interface Props {
 const { title, description = 'Bring your own clanker. Build your own compliance. Open-source spec files for GRC compliance automation.' } = Astro.props;
 
 // Build search data for the command palette
-const specFiles = import.meta.glob('/specs/*.spec.md', { query: '?raw', import: 'default', eager: true });
-const searchData = Object.entries(specFiles).map(([_, raw]) => {
-  const { meta } = parseFrontmatter(raw as string);
+const searchData = loadSpecs().map((meta) => {
   return {
     slug: meta.slug,
     name: meta.name,
@@ -97,7 +95,8 @@ const searchData = Object.entries(specFiles).map(([_, raw]) => {
           >
             Search <kbd class="hidden sm:inline">/</kbd>
           </button>
-          <a href="/" class="hidden sm:inline text-subtext0 hover:text-blue transition-colors">Specs</a>
+          <a href="/" class="hidden sm:inline text-subtext0 hover:text-blue transition-colors">Companion</a>
+          <a href="/specs" class="hidden sm:inline text-subtext0 hover:text-blue transition-colors">Specs</a>
           <a href="/about" class="hidden sm:inline text-subtext0 hover:text-blue transition-colors">About</a>
           <a
             href="https://github.com/ethanolivertroy/grclanker"
@@ -126,7 +125,8 @@ const searchData = Object.entries(specFiles).map(([_, raw]) => {
       <div class="max-w-content mx-auto px-6 py-3 flex items-center justify-between text-xs relative z-10">
         <div class="flex items-center gap-4 text-subtext0">
           <span>Built by <a href="https://ethantroy.dev" class="hover:text-blue">Ethan Troy</a></span>
-          <a href="/" class="hover:text-blue">Specs</a>
+          <a href="/" class="hover:text-blue">Companion</a>
+          <a href="/specs" class="hover:text-blue">Specs</a>
           <a href="/about" class="hover:text-blue">About</a>
           <a href="https://github.com/ethanolivertroy/grclanker" target="_blank" rel="noopener" class="hover:text-blue">GitHub</a>
         </div>
