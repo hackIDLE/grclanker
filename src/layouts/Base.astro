@@ -53,40 +53,42 @@ const searchData = Object.entries(specFiles).map(([_, raw]) => {
     <!-- Nav -->
     <nav class="border-b border-surface0/60 bg-mantle/80 backdrop-blur-sm sticky top-0 z-50" aria-label="Main navigation">
       <div class="max-w-content mx-auto px-6 py-3 flex items-center justify-between">
-        <a href="/" class="flex items-center gap-2 text-text hover:text-blue transition-colors group">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" class="shrink-0">
-            <!-- Antenna stalk -->
-            <rect x="12.5" y="0.5" width="3" height="3" rx="0.75" fill="#626880"/>
-            <circle cx="14" cy="0.75" r="1.25" fill="#8caaee"/>
-            <!-- Ear panels -->
-            <rect x="1" y="10" width="3" height="7" rx="1" fill="#51576d"/>
-            <rect x="24" y="10" width="3" height="7" rx="1" fill="#51576d"/>
-            <!-- Head body -->
-            <rect x="4.5" y="4" width="19" height="19" rx="3" fill="#414559" stroke="#626880" stroke-width="1"/>
-            <!-- Forehead plate -->
-            <rect x="7" y="6" width="14" height="4" rx="1.5" fill="#51576d"/>
-            <!-- Visor band (dark inset) -->
-            <rect x="6" y="11.5" width="16" height="5" rx="1" fill="#232634"/>
-            <!-- Left eye -->
-            <rect x="7" y="12.5" width="5" height="3" rx="1" fill="#8caaee"/>
-            <!-- Right eye -->
-            <rect x="16" y="12.5" width="5" height="3" rx="1" fill="#8caaee"/>
-            <!-- Eye glow -->
-            <rect x="7" y="12.5" width="5" height="3" rx="1" fill="#8caaee" opacity="0.3" filter="url(#glow)"/>
-            <rect x="16" y="12.5" width="5" height="3" rx="1" fill="#8caaee" opacity="0.3" filter="url(#glow)"/>
-            <!-- Mouth grille -->
-            <rect x="9" y="18.5" width="10" height="3" rx="1" fill="#232634"/>
-            <line x1="11" y1="18.5" x2="11" y2="21.5" stroke="#51576d" stroke-width="0.75"/>
-            <line x1="14" y1="18.5" x2="14" y2="21.5" stroke="#51576d" stroke-width="0.75"/>
-            <line x1="17" y1="18.5" x2="17" y2="21.5" stroke="#51576d" stroke-width="0.75"/>
-            <!-- Chin -->
-            <rect x="10" y="22" width="8" height="1.5" rx="0.5" fill="#51576d" opacity="0.5"/>
-            <!-- Glow filter -->
-            <defs><filter id="glow"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-          </svg>
-          <span class="font-bold text-lg tracking-wider">GRCLANKER</span>
-          <span class="text-subtext0 text-sm hidden sm:inline font-normal tracking-normal">by hackIDLE</span>
-        </a>
+        <div class="flex items-center gap-2">
+          <a href="/" class="flex items-center gap-2 text-text hover:text-blue transition-colors group">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" class="shrink-0">
+              <!-- Antenna stalk -->
+              <rect x="12.5" y="0.5" width="3" height="3" rx="0.75" fill="#626880"/>
+              <circle cx="14" cy="0.75" r="1.25" fill="#8caaee"/>
+              <!-- Ear panels -->
+              <rect x="1" y="10" width="3" height="7" rx="1" fill="#51576d"/>
+              <rect x="24" y="10" width="3" height="7" rx="1" fill="#51576d"/>
+              <!-- Head body -->
+              <rect x="4.5" y="4" width="19" height="19" rx="3" fill="#414559" stroke="#626880" stroke-width="1"/>
+              <!-- Forehead plate -->
+              <rect x="7" y="6" width="14" height="4" rx="1.5" fill="#51576d"/>
+              <!-- Visor band (dark inset) -->
+              <rect x="6" y="11.5" width="16" height="5" rx="1" fill="#232634"/>
+              <!-- Left eye -->
+              <rect x="7" y="12.5" width="5" height="3" rx="1" fill="#8caaee"/>
+              <!-- Right eye -->
+              <rect x="16" y="12.5" width="5" height="3" rx="1" fill="#8caaee"/>
+              <!-- Eye glow -->
+              <rect x="7" y="12.5" width="5" height="3" rx="1" fill="#8caaee" opacity="0.3" filter="url(#glow)"/>
+              <rect x="16" y="12.5" width="5" height="3" rx="1" fill="#8caaee" opacity="0.3" filter="url(#glow)"/>
+              <!-- Mouth grille -->
+              <rect x="9" y="18.5" width="10" height="3" rx="1" fill="#232634"/>
+              <line x1="11" y1="18.5" x2="11" y2="21.5" stroke="#51576d" stroke-width="0.75"/>
+              <line x1="14" y1="18.5" x2="14" y2="21.5" stroke="#51576d" stroke-width="0.75"/>
+              <line x1="17" y1="18.5" x2="17" y2="21.5" stroke="#51576d" stroke-width="0.75"/>
+              <!-- Chin -->
+              <rect x="10" y="22" width="8" height="1.5" rx="0.5" fill="#51576d" opacity="0.5"/>
+              <!-- Glow filter -->
+              <defs><filter id="glow"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            </svg>
+            <span class="font-bold text-lg tracking-wider">GRCLANKER</span>
+          </a>
+          <a href="https://hackidle.com" class="text-subtext0 hover:text-blue text-sm transition-colors hidden sm:inline">by hackIDLE</a>
+        </div>
         <div class="flex items-center gap-4 md:gap-6 text-sm">
           <button
             onclick="window.__openSearch && window.__openSearch()"
