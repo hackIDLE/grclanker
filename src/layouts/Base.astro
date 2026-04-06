@@ -132,9 +132,9 @@ const searchData = searchEnabled
     <!-- Nav -->
     <nav class="border-b border-surface0/60 bg-mantle/95 sticky top-0 z-50" aria-label="Main navigation">
       <div class="max-w-content mx-auto px-4 sm:px-6">
-        <div class="flex min-h-[4.25rem] items-center justify-between gap-4 py-2">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <a href="/" class="flex items-center gap-2 text-text hover:text-blue transition-colors group">
+        <div class="site-nav-row flex min-h-[4.25rem] items-center justify-between gap-4 py-2">
+          <div class="site-nav-brand flex items-center gap-2.5 min-w-0">
+            <a href="/" class="site-nav-logo flex items-center gap-2 text-text hover:text-blue transition-colors group">
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none" class="shrink-0">
               <!-- Antenna stalk -->
               <rect x="12.5" y="0.5" width="3" height="3" rx="0.75" fill="#626880"/>
@@ -165,73 +165,73 @@ const searchData = searchEnabled
               <!-- Glow filter -->
               <defs><filter id="glow"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
             </svg>
-            <span class="led led-live"></span>
-            <span class="font-bold text-base md:text-lg tracking-[0.06em] md:tracking-[0.12em] nav-wordmark">GRCLANKER</span>
-          </a>
-          <a href="https://hackidle.com" class="text-overlay1 hover:text-blue text-[0.8125rem] transition-colors hidden md:inline">by hackIDLE</a>
-        </div>
-        <div class="hidden md:flex items-center gap-4 md:gap-6 text-sm">
-          {searchEnabled && (
-            <button
-              onclick="window.__openSearch && window.__openSearch()"
-              class="nav-action-btn nav-search-btn"
-              aria-label="Search site (press / or Cmd+K)"
-            >
-              Search <kbd class="hidden md:inline">/</kbd>
-            </button>
-          )}
-          {primaryLinks.map((link) => (
+              <span class="led led-live"></span>
+              <span class="font-bold nav-wordmark">GRCLANKER</span>
+            </a>
+            <a href="https://hackidle.com" class="text-overlay1 hover:text-blue text-[0.8125rem] transition-colors hidden md:inline">by hackIDLE</a>
+          </div>
+          <div class="hidden md:flex items-center gap-4 md:gap-6 text-sm">
+            {searchEnabled && (
+              <button
+                onclick="window.__openSearch && window.__openSearch()"
+                class="nav-action-btn nav-search-btn"
+                aria-label="Search site (press / or Cmd+K)"
+              >
+                Search <kbd class="hidden md:inline">/</kbd>
+              </button>
+            )}
+            {primaryLinks.map((link) => (
+              <a
+                href={link.href}
+                class:list={[
+                  'nav-link',
+                  (link.href === '/' ? Astro.url.pathname === '/' : Astro.url.pathname.startsWith(link.href)) ? 'is-active' : '',
+                ]}
+              >{link.label}</a>
+            ))}
             <a
-              href={link.href}
-              class:list={[
-                'nav-link',
-                (link.href === '/' ? Astro.url.pathname === '/' : Astro.url.pathname.startsWith(link.href)) ? 'is-active' : '',
-              ]}
-            >{link.label}</a>
-          ))}
-          <a
-            href="https://github.com/ethanolivertroy/grclanker"
-            target="_blank"
-            rel="noopener"
-            class="text-subtext0 hover:text-blue transition-colors"
-            aria-label="GitHub repository"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          </a>
-        </div>
-        <div class="flex md:hidden items-center gap-2">
-          {searchEnabled && (
-            <button
-              type="button"
-              onclick="window.__openSearch && window.__openSearch()"
-              class="nav-icon-btn"
-              aria-label="Search site"
+              href="https://github.com/ethanolivertroy/grclanker"
+              target="_blank"
+              rel="noopener"
+              class="text-subtext0 hover:text-blue transition-colors"
+              aria-label="GitHub repository"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="7"></circle>
-                <path d="m20 20-3.5-3.5"></path>
-              </svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+          </div>
+          <div class="site-nav-mobile-actions flex md:hidden items-center gap-2">
+            {searchEnabled && (
+              <button
+                type="button"
+                onclick="window.__openSearch && window.__openSearch()"
+                class="nav-icon-btn"
+                aria-label="Search site"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="7"></circle>
+                  <path d="m20 20-3.5-3.5"></path>
+                </svg>
+              </button>
+            )}
+            <a
+              href="https://github.com/ethanolivertroy/grclanker"
+              target="_blank"
+              rel="noopener"
+              class="nav-icon-btn"
+              aria-label="GitHub repository"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <button
+              id="mobile-nav-toggle"
+              type="button"
+              class="nav-action-btn"
+              aria-expanded="false"
+              aria-controls="mobile-nav-panel"
+            >
+              Menu
             </button>
-          )}
-          <a
-            href="https://github.com/ethanolivertroy/grclanker"
-            target="_blank"
-            rel="noopener"
-            class="nav-icon-btn"
-            aria-label="GitHub repository"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          </a>
-          <button
-            id="mobile-nav-toggle"
-            type="button"
-            class="nav-action-btn"
-            aria-expanded="false"
-            aria-controls="mobile-nav-panel"
-          >
-            Menu
-          </button>
-        </div>
+          </div>
         </div>
         <div id="mobile-nav-panel" class="site-mobile-nav-panel md:hidden hidden" aria-label="Mobile navigation">
           <div class="site-mobile-nav-links">
@@ -255,18 +255,20 @@ const searchData = searchEnabled
           <img src={footerImage} alt="" class="footer-image-strip-media" loading="lazy" />
           <div class="footer-image-strip-overlay"></div>
         </div>
-        <div class="max-w-content mx-auto px-6 py-4 flex flex-col gap-3 text-xs text-subtext0 sm:flex-row sm:items-center sm:justify-between">
-          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-subtext0">
+        <div class="site-footer-shell max-w-content mx-auto px-6 py-4 text-xs text-subtext0">
+          <div class="site-footer-meta">
             <span>Built by <a href="https://ethantroy.dev" class="hover:text-blue">Ethan Troy</a></span>
-            <a href="/" class="hover:text-blue">CLI</a>
-            <a href="/docs" class="hover:text-blue">Docs</a>
-            <a href="/specs" class="hover:text-blue">Specs</a>
-            <a href="/about" class="hover:text-blue">About</a>
-            <a href="https://github.com/ethanolivertroy/grclanker" target="_blank" rel="noopener" class="hover:text-blue">GitHub</a>
           </div>
-          <span class="flex items-center gap-1.5 text-subtext0">
+          <div class="site-footer-links">
+            <a href="/" class="site-footer-link hover:text-blue">CLI</a>
+            <a href="/docs" class="site-footer-link hover:text-blue">Docs</a>
+            <a href="/specs" class="site-footer-link hover:text-blue">Specs</a>
+            <a href="/about" class="site-footer-link hover:text-blue">About</a>
+            <a href="https://github.com/ethanolivertroy/grclanker" target="_blank" rel="noopener" class="site-footer-link site-footer-link-wide hover:text-blue">GitHub</a>
+          </div>
+          <span class="site-footer-status">
             <span class="led led-live"></span>
-            <span class="hidden sm:inline italic">SYS NOMINAL</span>
+            <span class="italic">SYS NOMINAL</span>
           </span>
         </div>
       </footer>
