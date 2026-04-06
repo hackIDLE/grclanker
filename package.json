@@ -12,5 +12,8 @@
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.1.1",
     "marked": "^17.0.5"
+  },
+  "overrides": {
+    "defu": "^6.1.6"
   }
 }
