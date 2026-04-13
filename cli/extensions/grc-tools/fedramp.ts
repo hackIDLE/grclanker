@@ -2,7 +2,9 @@ import { Type } from "@sinclair/typebox";
 
 import {
   type FedrampApplicability,
+  type FedrampKsiDomainRecord,
   type FedrampKsiIndicatorRecord,
+  type FedrampProcessRecord,
   type FedrampRequirementRecord,
   domainIndicators,
   inspectFedrampOfficialSources,
@@ -26,6 +28,53 @@ type SearchArgs = {
   limit?: number;
 };
 type QueryArgs = { query: string };
+type ReadinessArgs = {
+  query: string;
+  applies_to?: FedrampApplicability | "any";
+  audience?: "provider" | "trust-center" | "any";
+  limit?: number;
+};
+
+type ReadinessChecklistItem = {
+  id: string;
+  appliesTo: FedrampApplicability;
+  keyword: string | null;
+  labelCode: string;
+  labelName: string;
+  statement: string;
+};
+
+type ReadinessBrief =
+  | {
+      kind: "process";
+      subject: FedrampProcessRecord;
+      linkedProcesses: FedrampProcessRecord[];
+      linkedIndicators: FedrampKsiIndicatorRecord[];
+      checklist: ReadinessChecklistItem[];
+      artifactSuggestions: string[];
+      workstreams: string[];
+      text: string;
+    }
+  | {
+      kind: "ksi-indicator";
+      subject: FedrampKsiIndicatorRecord;
+      linkedProcesses: FedrampProcessRecord[];
+      linkedIndicators: FedrampKsiIndicatorRecord[];
+      checklist: ReadinessChecklistItem[];
+      artifactSuggestions: string[];
+      workstreams: string[];
+      text: string;
+    }
+  | {
+      kind: "ksi-domain";
+      subject: FedrampKsiDomainRecord;
+      linkedProcesses: FedrampProcessRecord[];
+      linkedIndicators: FedrampKsiIndicatorRecord[];
+      checklist: ReadinessChecklistItem[];
+      artifactSuggestions: string[];
+      workstreams: string[];
+      text: string;
+    };
 
 function asString(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
@@ -105,6 +154,37 @@ function normalizeQueryArgs(args: unknown): QueryArgs {
   }
 
   return { query: "" };
+}
+
+function normalizeReadinessArgs(args: unknown): ReadinessArgs {
+  if (typeof args === "string" || typeof args === "number") {
+    return { query: String(args), applies_to: "any", audience: "provider", limit: 8 };
+  }
+
+  if (args && typeof args === "object") {
+    const value = args as Record<string, unknown>;
+    const audienceRaw = asString(value.audience)?.toLowerCase();
+    return {
+      query:
+        asString(value.query) ??
+        asString(value.id) ??
+        asString(value.process) ??
+        asString(value.process_id) ??
+        asString(value.ksi) ??
+        asString(value.indicator) ??
+        "",
+      applies_to: normalizeFedrampApplicability(
+        asString(value.applies_to) ?? asString(value.framework),
+      ),
+      audience:
+        audienceRaw === "trust-center" || audienceRaw === "any" || audienceRaw === "provider"
+          ? audienceRaw
+          : "provider",
+      limit: clampLimit(asNumber(value.limit), 8),
+    };
+  }
+
+  return { query: "", applies_to: "any", audience: "provider", limit: 8 };
 }
 
 function missingQueryResult(toolName: string, example: string) {
@@ -309,6 +389,434 @@ function formatIndicatorSummary(indicator: FedrampKsiIndicatorRecord): string {
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+function filterRequirementsByApplicability(
+  requirements: FedrampRequirementRecord[],
+  appliesTo: FedrampApplicability | "any",
+): FedrampRequirementRecord[] {
+  if (appliesTo === "any") return requirements;
+  if (appliesTo === "both") {
+    return requirements.filter((requirement) => requirement.appliesTo === "both");
+  }
+  return requirements.filter(
+    (requirement) => requirement.appliesTo === appliesTo || requirement.appliesTo === "both",
+  );
+}
+
+function requirementPriority(
+  requirement: FedrampRequirementRecord,
+  audience: ReadinessArgs["audience"],
+): number {
+  let score = 0;
+  if (requirement.primaryKeyWord === "MUST") score += 300;
+  else if (requirement.primaryKeyWord === "SHOULD") score += 200;
+  else if (requirement.primaryKeyWord === "MAY") score += 100;
+
+  if (requirement.appliesTo === "both") score += 40;
+  else if (requirement.appliesTo === "20x") score += 30;
+  else if (requirement.appliesTo === "rev5") score += 20;
+
+  if (audience === "provider") {
+    if (["CSO", "CSX", "CSL", "UTC"].includes(requirement.labelCode)) score += 35;
+    if (requirement.labelCode === "TRC") score += 15;
+  } else if (audience === "trust-center") {
+    if (requirement.labelCode === "TRC") score += 35;
+    if (requirement.labelCode === "UTC") score += 20;
+  }
+
+  if (/programmatic access|publicly share|persistently|quarterly|notify|log access|inventory/i.test(requirement.statement)) {
+    score += 10;
+  }
+
+  return score;
+}
+
+function toChecklistItems(requirements: FedrampRequirementRecord[]): ReadinessChecklistItem[] {
+  return requirements.map((requirement) => ({
+    id: requirement.id,
+    appliesTo: requirement.appliesTo,
+    keyword: requirement.primaryKeyWord,
+    labelCode: requirement.labelCode,
+    labelName: requirement.labelName,
+    statement: requirement.statement,
+  }));
+}
+
+function dedupeStrings(values: string[]): string[] {
+  return Array.from(new Set(values.filter((value) => value.trim().length > 0)));
+}
+
+export function inferFedrampArtifactSuggestions(
+  processIds: string[],
+  requirements: FedrampRequirementRecord[],
+  indicators: FedrampKsiIndicatorRecord[],
+): string[] {
+  const text = [
+    ...requirements.map((requirement) => requirement.statement),
+    ...requirements.flatMap((requirement) => requirement.followingInformation),
+    ...indicators.map((indicator) => indicator.statement),
+  ].join(" \n ");
+
+  const suggestions: string[] = [];
+  const lower = text.toLowerCase();
+
+  if (/human-readable|machine-readable|publicly share|public webpage/.test(lower)) {
+    suggestions.push("Public trust-center or documentation page plus a machine-readable authorization data feed.");
+  }
+  if (/programmatic access|api|download/.test(lower)) {
+    suggestions.push("Documented API or export interface for authorization data, including access instructions.");
+  }
+  if (/inventory|history/.test(lower)) {
+    suggestions.push("Access inventory or history export showing who can view or retrieve authorization data.");
+  }
+  if (/log access|log access|access log/.test(lower)) {
+    suggestions.push("Access-log summaries for authorization data and trust-center activity.");
+  }
+  if (/plan and process|procedure|methodology/.test(lower)) {
+    suggestions.push("Written process or methodology documents for the relevant FedRAMP workflow.");
+  }
+  if (/report|quarterly review|ongoing authorization report|oar/.test(lower)) {
+    suggestions.push("Recurring report artifacts, such as ongoing authorization or quarterly review outputs.");
+  }
+  if (/notify|notification|inbox/.test(lower)) {
+    suggestions.push("Notification runbook, inbox ownership, and escalation routing records.");
+  }
+  if (/validate|validation|cadence|persistently/.test(lower)) {
+    suggestions.push("Automated validation job evidence and cadence records showing continuous checks.");
+  }
+  if (/secure configuration|configuration guidance|shared responsibility/.test(lower) || processIds.includes("SCG")) {
+    suggestions.push("Secure configuration guide plus shared-responsibility guidance for customers.");
+  }
+  if (/vulnerability|accepted vulnerability|remediation/.test(lower) || processIds.includes("VDR")) {
+    suggestions.push("Vulnerability handling evidence, remediation tracking, and accepted-risk records.");
+  }
+  if (/cryptographic module|fips|cmvp/.test(lower) || processIds.includes("UCM")) {
+    suggestions.push("Cryptographic module inventory and CMVP or FIPS references for relevant protections.");
+  }
+  if (/incident/.test(lower) || processIds.includes("ICP") || processIds.includes("FSI")) {
+    suggestions.push("Incident communications procedure, government contact path, and inbox operations evidence.");
+  }
+  if (/scope|service list|boundary|customer responsibilities/.test(lower) || processIds.includes("MAS")) {
+    suggestions.push("Service inventory, boundary description, and minimum assessment scope record.");
+  }
+  if (/independent assessment|assessor/.test(lower) || processIds.includes("PVA")) {
+    suggestions.push("Independent assessment outputs preserved without modification, plus validation linkage to VDR.");
+  }
+
+  return dedupeStrings(suggestions).slice(0, 8);
+}
+
+export function inferFedrampWorkstreams(
+  processIds: string[],
+  requirements: FedrampRequirementRecord[],
+  indicators: FedrampKsiIndicatorRecord[],
+): string[] {
+  const workstreams = new Set<string>();
+
+  const mapped = {
+    ADS: [
+      "authorization data publishing",
+      "trust-center operations",
+      "programmatic access",
+      "access inventory and access logging",
+    ],
+    CCM: [
+      "ongoing authorization reporting",
+      "quarterly review operations",
+      "continuous monitoring coordination",
+    ],
+    FSI: ["security inbox operations", "government contact routing"],
+    ICP: ["incident communications", "government notification workflow"],
+    MAS: ["assessment scope definition", "service inventory and boundary management"],
+    PVA: [
+      "persistent validation automation",
+      "validation cadence tracking",
+      "assessment-result intake",
+      "VDR linkage",
+    ],
+    SCG: ["secure-by-default configuration", "customer hardening guidance"],
+    SCN: ["change governance", "significant-change notification workflow"],
+    UCM: ["cryptographic module inventory", "approved cryptography usage"],
+    VDR: ["vulnerability detection", "remediation tracking", "accepted-risk handling"],
+  } as const;
+
+  for (const processId of processIds) {
+    for (const item of mapped[processId as keyof typeof mapped] ?? []) {
+      workstreams.add(item);
+    }
+  }
+
+  const lower = [
+    ...requirements.map((requirement) => requirement.statement),
+    ...indicators.map((indicator) => indicator.statement),
+  ]
+    .join(" \n ")
+    .toLowerCase();
+
+  if (/machine-readable|human-readable/.test(lower)) workstreams.add("public documentation and machine-readable publishing");
+  if (/programmatic access|api/.test(lower)) workstreams.add("API enablement for authorization data");
+  if (/persistently|validation/.test(lower)) workstreams.add("continuous validation and evidence capture");
+  if (/log access|inventory/.test(lower)) workstreams.add("access governance and auditability");
+  if (/notify|notification/.test(lower)) workstreams.add("notification and escalation management");
+  if (/incident/.test(lower)) workstreams.add("incident response coordination");
+
+  return Array.from(workstreams).slice(0, 8);
+}
+
+function resolveLinkedProcess(
+  loaded: Awaited<ReturnType<typeof loadFedrampCatalog>>,
+  reference: string | null,
+): FedrampProcessRecord | undefined {
+  if (!reference) return undefined;
+  const normalized = reference.trim().toLowerCase();
+  return loaded.catalog.processes.find((process) =>
+    [
+      process.id,
+      process.name,
+      process.shortName,
+      process.webName,
+    ].some((candidate) => candidate.trim().toLowerCase() === normalized),
+  );
+}
+
+export function buildFedrampReadinessBrief(
+  loaded: Awaited<ReturnType<typeof loadFedrampCatalog>>,
+  args: ReadinessArgs,
+): ReadinessBrief {
+  const audience = args.audience ?? "provider";
+  const appliesTo = args.applies_to ?? "any";
+  const limit = args.limit ?? 8;
+
+  try {
+    const process = resolveFedrampProcess(loaded.catalog, args.query);
+    const allRequirements = processRequirements(loaded.catalog, process.id);
+    const filteredRequirements = filterRequirementsByApplicability(allRequirements, appliesTo);
+    const prioritized = filteredRequirements
+      .slice()
+      .sort((left, right) => {
+        const delta = requirementPriority(right, audience) - requirementPriority(left, audience);
+        return delta !== 0 ? delta : left.id.localeCompare(right.id);
+      })
+      .slice(0, limit);
+    const linkedIndicators = loaded.catalog.ksiIndicators.filter(
+      (indicator) =>
+        resolveLinkedProcess(loaded, indicator.reference)?.id === process.id,
+    );
+    const artifactSuggestions = inferFedrampArtifactSuggestions([process.id], filteredRequirements, linkedIndicators);
+    const workstreams = inferFedrampWorkstreams([process.id], filteredRequirements, linkedIndicators);
+    const checklist = toChecklistItems(prioritized);
+    const lines = [
+      `${process.name} readiness brief`,
+      `Audience:        ${audience}`,
+      `Applies to:      ${appliesTo}`,
+      `Official page:   ${process.sourceUrl ?? "Unavailable"}`,
+      "",
+      "Priority checklist:",
+      ...checklist.map((item) => `- [${item.keyword ?? "INFO"}] ${item.id} (${item.appliesTo}, ${item.labelCode}) — ${item.statement}`),
+    ];
+
+    if (artifactSuggestions.length > 0) {
+      lines.push("", "Likely artifacts to have ready (inferred from official requirements):");
+      for (const artifact of artifactSuggestions) lines.push(`- ${artifact}`);
+    }
+
+    if (workstreams.length > 0) {
+      lines.push("", "Operational workstreams (inferred from official requirements):");
+      for (const workstream of workstreams) lines.push(`- ${workstream}`);
+    }
+
+    if (linkedIndicators.length > 0) {
+      lines.push("", "Linked KSI indicators:");
+      for (const indicator of linkedIndicators.slice(0, 6)) {
+        lines.push(`- ${indicator.id} — ${indicator.name}`);
+      }
+    }
+
+    lines.push(
+      "",
+      formatProvenanceNote({
+        repo: loaded.provenance.repo,
+        path: loaded.provenance.path,
+        branch: loaded.provenance.branch,
+        blobSha: loaded.provenance.blobSha,
+        version: loaded.provenance.version,
+        upstreamLastUpdated: loaded.provenance.upstreamLastUpdated,
+        cacheStatus: loaded.cacheStatus,
+      }),
+    );
+
+    return {
+      kind: "process",
+      subject: process,
+      linkedProcesses: [process],
+      linkedIndicators,
+      checklist,
+      artifactSuggestions,
+      workstreams,
+      text: lines.join("\n"),
+    };
+  } catch {
+    const match = resolveFedrampKsi(loaded.catalog, args.query);
+    if (match.kind === "indicator") {
+      const linkedProcess = resolveLinkedProcess(loaded, match.indicator.reference);
+      const linkedProcesses = linkedProcess ? [linkedProcess] : [];
+      const processRequirementsList = linkedProcess
+        ? filterRequirementsByApplicability(processRequirements(loaded.catalog, linkedProcess.id), appliesTo)
+        : [];
+      const prioritized = processRequirementsList
+        .slice()
+        .sort((left, right) => {
+          const delta = requirementPriority(right, audience) - requirementPriority(left, audience);
+          return delta !== 0 ? delta : left.id.localeCompare(right.id);
+        })
+        .slice(0, limit);
+      const checklist = toChecklistItems(prioritized);
+      const artifactSuggestions = inferFedrampArtifactSuggestions(
+        linkedProcesses.map((process) => process.id),
+        processRequirementsList,
+        [match.indicator],
+      );
+      const workstreams = inferFedrampWorkstreams(
+        linkedProcesses.map((process) => process.id),
+        processRequirementsList,
+        [match.indicator],
+      );
+      const lines = [
+        `${match.indicator.name} readiness brief`,
+        `Audience:        ${audience}`,
+        `Applies to:      20x${appliesTo !== "any" ? ` (requested filter: ${appliesTo})` : ""}`,
+        `Linked process:  ${linkedProcess ? `${linkedProcess.name} [${linkedProcess.shortName}]` : "No direct process match found"}`,
+        "",
+        formatIndicatorSummary(match.indicator),
+      ];
+
+      if (checklist.length > 0) {
+        lines.push("", "Priority process checklist:");
+        for (const item of checklist) {
+          lines.push(`- [${item.keyword ?? "INFO"}] ${item.id} (${item.appliesTo}, ${item.labelCode}) — ${item.statement}`);
+        }
+      }
+
+      if (artifactSuggestions.length > 0) {
+        lines.push("", "Likely artifacts to have ready (inferred from official sources):");
+        for (const artifact of artifactSuggestions) lines.push(`- ${artifact}`);
+      }
+
+      if (workstreams.length > 0) {
+        lines.push("", "Operational workstreams (inferred from official sources):");
+        for (const workstream of workstreams) lines.push(`- ${workstream}`);
+      }
+
+      lines.push(
+        "",
+        formatProvenanceNote({
+          repo: loaded.provenance.repo,
+          path: loaded.provenance.path,
+          branch: loaded.provenance.branch,
+          blobSha: loaded.provenance.blobSha,
+          version: loaded.provenance.version,
+          upstreamLastUpdated: loaded.provenance.upstreamLastUpdated,
+          cacheStatus: loaded.cacheStatus,
+        }),
+      );
+
+      return {
+        kind: "ksi-indicator",
+        subject: match.indicator,
+        linkedProcesses,
+        linkedIndicators: [match.indicator],
+        checklist,
+        artifactSuggestions,
+        workstreams,
+        text: lines.join("\n"),
+      };
+    }
+
+    const indicators = domainIndicators(loaded.catalog, match.domain.id);
+    const linkedProcesses = dedupeStrings(
+      indicators
+        .map((indicator) => resolveLinkedProcess(loaded, indicator.reference)?.id ?? "")
+        .filter(Boolean),
+    )
+      .map((processId) => loaded.catalog.processes.find((process) => process.id === processId))
+      .filter((process): process is FedrampProcessRecord => Boolean(process));
+    const linkedRequirements = linkedProcesses.flatMap((process) =>
+      filterRequirementsByApplicability(processRequirements(loaded.catalog, process.id), appliesTo),
+    );
+    const prioritized = linkedRequirements
+      .slice()
+      .sort((left, right) => {
+        const delta = requirementPriority(right, audience) - requirementPriority(left, audience);
+        return delta !== 0 ? delta : left.id.localeCompare(right.id);
+      })
+      .slice(0, limit);
+    const checklist = toChecklistItems(prioritized);
+    const artifactSuggestions = inferFedrampArtifactSuggestions(
+      linkedProcesses.map((process) => process.id),
+      linkedRequirements,
+      indicators,
+    );
+    const workstreams = inferFedrampWorkstreams(
+      linkedProcesses.map((process) => process.id),
+      linkedRequirements,
+      indicators,
+    );
+    const lines = [
+      `${match.domain.name} readiness brief`,
+      `Audience:        ${audience}`,
+      `Applies to:      20x${appliesTo !== "any" ? ` (requested filter: ${appliesTo})` : ""}`,
+      "",
+      match.domain.theme,
+      "",
+      "Linked processes:",
+      ...linkedProcesses.map((process) => `- ${process.name} [${process.shortName}]`),
+      "",
+      "Indicators:",
+      ...indicators.slice(0, 10).map((indicator) => `- ${indicator.id} — ${indicator.name}`),
+    ];
+
+    if (checklist.length > 0) {
+      lines.push("", "Priority process checklist:");
+      for (const item of checklist) {
+        lines.push(`- [${item.keyword ?? "INFO"}] ${item.id} (${item.appliesTo}, ${item.labelCode}) — ${item.statement}`);
+      }
+    }
+
+    if (artifactSuggestions.length > 0) {
+      lines.push("", "Likely artifacts to have ready (inferred from official sources):");
+      for (const artifact of artifactSuggestions) lines.push(`- ${artifact}`);
+    }
+
+    if (workstreams.length > 0) {
+      lines.push("", "Operational workstreams (inferred from official sources):");
+      for (const workstream of workstreams) lines.push(`- ${workstream}`);
+    }
+
+    lines.push(
+      "",
+      formatProvenanceNote({
+        repo: loaded.provenance.repo,
+        path: loaded.provenance.path,
+        branch: loaded.provenance.branch,
+        blobSha: loaded.provenance.blobSha,
+        version: loaded.provenance.version,
+        upstreamLastUpdated: loaded.provenance.upstreamLastUpdated,
+        cacheStatus: loaded.cacheStatus,
+      }),
+    );
+
+    return {
+      kind: "ksi-domain",
+      subject: match.domain,
+      linkedProcesses,
+      linkedIndicators: indicators,
+      checklist,
+      artifactSuggestions,
+      workstreams,
+      text: lines.join("\n"),
+    };
+  }
 }
 
 function formatKsiText(
@@ -623,6 +1131,99 @@ export function registerFedrampTools(pi: any): void {
         return errorResult(
           `FedRAMP KSI lookup failed: ${error instanceof Error ? error.message : String(error)}`,
           { tool: "fedramp_get_ksi", query: args.query },
+        );
+      }
+    },
+  });
+
+  pi.registerTool({
+    name: "fedramp_assess_readiness",
+    label: "Assess FedRAMP readiness",
+    description:
+      "Turn an official FedRAMP process or KSI into a practical readiness brief with prioritized checklist items, likely artifacts, and inferred workstreams for providers or trust centers.",
+    parameters: Type.Object({
+      query: Type.String({
+        description: "Process or KSI query such as ADS, PVA, KSI-AFR, or KSI-AFR-ADS.",
+      }),
+      applies_to: Type.Optional(
+        Type.Union([
+          Type.Literal("20x"),
+          Type.Literal("rev5"),
+          Type.Literal("both"),
+          Type.Literal("any"),
+        ]),
+      ),
+      audience: Type.Optional(
+        Type.Union([
+          Type.Literal("provider"),
+          Type.Literal("trust-center"),
+          Type.Literal("any"),
+        ]),
+      ),
+      limit: Type.Optional(
+        Type.Number({
+          description: "Max checklist items to prioritize (default: 8).",
+          default: 8,
+        }),
+      ),
+    }),
+    prepareArguments: normalizeReadinessArgs,
+    async execute(_toolCallId: string, args: ReadinessArgs) {
+      if (!args.query.trim()) {
+        return missingQueryResult("fedramp_assess_readiness", '{"query":"ADS"}');
+      }
+
+      try {
+        const loaded = await loadFedrampCatalog();
+        const brief = buildFedrampReadinessBrief(loaded, args);
+        return textResult(brief.text, {
+          tool: "fedramp_assess_readiness",
+          query: args.query,
+          audience: args.audience ?? "provider",
+          applies_to: args.applies_to ?? "any",
+          kind: brief.kind,
+          subject:
+            brief.kind === "process"
+              ? {
+                  id: brief.subject.id,
+                  name: brief.subject.name,
+                  short_name: brief.subject.shortName,
+                  web_name: brief.subject.webName,
+                }
+              : brief.kind === "ksi-domain"
+                ? {
+                    id: brief.subject.id,
+                    name: brief.subject.name,
+                    short_name: brief.subject.shortName,
+                    web_name: brief.subject.webName,
+                  }
+                : {
+                    id: brief.subject.id,
+                    name: brief.subject.name,
+                    domain_id: brief.subject.domainId,
+                  },
+          checklist: brief.checklist,
+          linked_processes: brief.linkedProcesses.map((process) => ({
+            id: process.id,
+            name: process.name,
+            short_name: process.shortName,
+          })),
+          linked_indicators: brief.linkedIndicators.map((indicator) => ({
+            id: indicator.id,
+            name: indicator.name,
+            reference: indicator.reference,
+            controls: indicator.controls,
+          })),
+          artifact_suggestions: brief.artifactSuggestions,
+          workstreams: brief.workstreams,
+          provenance: loaded.provenance,
+          cache_status: loaded.cacheStatus,
+          notes: loaded.notes,
+        });
+      } catch (error) {
+        return errorResult(
+          `FedRAMP readiness assessment failed: ${error instanceof Error ? error.message : String(error)}`,
+          { tool: "fedramp_assess_readiness", query: args.query },
         );
       }
     },

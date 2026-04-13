@@ -5,7 +5,7 @@ description: Start with the bundle installer, run setup, pick local-first or hos
 
 `grclanker` is an experimental open source AI GRC companion built on top of Pi.
 
-The current release starts with CMVP, KEV, EPSS, official FedRAMP GitHub-grounded 20x and Rev5 lookups, posture mapping, Vanta audit export, SCF lookups, trestle-backed OSCAL helpers, and spec-driven build inputs, but that is the opening surface, not the ceiling. The real flow is short:
+The current release starts with CMVP, KEV, EPSS, official FedRAMP GitHub-grounded 20x and Rev5 lookups, FedRAMP readiness briefs, posture mapping, Vanta audit export, SCF lookups, trestle-backed OSCAL helpers, and spec-driven build inputs, but that is the opening surface, not the ceiling. The real flow is short:
 
 1. Install the companion.
 2. Run `grclanker setup`.
@@ -37,6 +37,7 @@ If you want the path that best matches the current product direction:
 - `/assess` for posture readouts, risk order, and confidence notes.
 - `/validate` for narrow FIPS validation questions.
 - Official FedRAMP FRMR-backed lookups and generated docs under [`/docs/fedramp/`](/docs/fedramp/).
+- `fedramp_assess_readiness` when you want an operator-facing brief for a FedRAMP process or KSI instead of raw lookup data.
 - Repo specs as build inputs under [`/specs`](/specs) and [`/docs/specs/using-specs-as-inputs/`](/docs/specs/using-specs-as-inputs/).
 
 ## Important Release Note

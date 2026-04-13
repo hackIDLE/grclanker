@@ -18,8 +18,9 @@ Use the GRC tools to gather high-signal evidence:
 4. EPSS likelihood for any matched CVEs
 5. Ransomware linkage where applicable
 6. If FedRAMP or FedRAMP 20x framing matters, use `fedramp_check_sources`, `fedramp_search_frmr`, `fedramp_get_process`, `fedramp_get_requirement`, and `fedramp_get_ksi` so the posture narrative stays grounded in the official FedRAMP GitHub sources
-7. SCF control language, crosswalks, and evidence-request guidance when framework interpretation matters
-8. If the assessment needs to roll into OSCAL artifacts, use the OSCAL trestle tools to scaffold or validate the SSP, SAR, or POA&M workspace content
+7. If you need a practical provider or trust-center brief for a FedRAMP process or KSI, use `fedramp_assess_readiness`
+8. SCF control language, crosswalks, and evidence-request guidance when framework interpretation matters
+9. If the assessment needs to roll into OSCAL artifacts, use the OSCAL trestle tools to scaffold or validate the SSP, SAR, or POA&M workspace content
 
 ## Phase 3: Posture Classification
 

@@ -16,6 +16,11 @@ import {
   searchFedrampCatalog,
 } from "../dist/extensions/grc-tools/fedramp-source.js";
 import { buildFedrampDocsSnapshot } from "../dist/extensions/grc-tools/fedramp-docs.js";
+import {
+  buildFedrampReadinessBrief,
+  inferFedrampArtifactSuggestions,
+  inferFedrampWorkstreams,
+} from "../dist/extensions/grc-tools/fedramp.js";
 
 function jsonResponse(payload) {
   return new Response(JSON.stringify(payload), {
@@ -347,4 +352,80 @@ test("buildFedrampDocsSnapshot is deterministic and includes provenance banners"
   assert.match(overview, /official FedRAMP GitHub organization/i);
   assert.match(overview, /0.9.43-beta/);
   assert.match(overview, /FRMR.documentation\.json/);
+});
+
+test("readiness helper prioritizes official MUST items and infers provider-facing artifacts", () => {
+  const catalog = normalizeFedrampFrmr(frmrFixture);
+  const loaded = {
+    catalog,
+    provenance: {
+      repo: "docs",
+      path: "FRMR.documentation.json",
+      branch: "main",
+      blobSha: "abcdef1234567890abcdef1234567890abcdef12",
+      version: "0.9.43-beta",
+      upstreamLastUpdated: "2026-04-08",
+    },
+    cacheStatus: "live",
+  };
+
+  const brief = buildFedrampReadinessBrief(loaded, {
+    query: "ADS",
+    audience: "provider",
+    applies_to: "20x",
+    limit: 3,
+  });
+
+  assert.equal(brief.kind, "process");
+  assert.equal(brief.checklist.length, 2);
+  assert.equal(brief.checklist[0]?.id, "ADS-CSO-PUB");
+  assert.ok(
+    brief.artifactSuggestions.some((item) => item.toLowerCase().includes("machine-readable")),
+  );
+  assert.ok(
+    brief.workstreams.some((item) => item.toLowerCase().includes("programmatic access")),
+  );
+  assert.match(brief.text, /Priority checklist:/);
+  assert.match(brief.text, /Likely artifacts to have ready/i);
+});
+
+test("readiness helper links KSI indicators back to their process obligations", () => {
+  const catalog = normalizeFedrampFrmr(frmrFixture);
+  const loaded = {
+    catalog,
+    provenance: {
+      repo: "docs",
+      path: "FRMR.documentation.json",
+      branch: "main",
+      blobSha: "abcdef1234567890abcdef1234567890abcdef12",
+      version: "0.9.43-beta",
+      upstreamLastUpdated: "2026-04-08",
+    },
+    cacheStatus: "live",
+  };
+
+  const brief = buildFedrampReadinessBrief(loaded, {
+    query: "KSI-AFR-03",
+    audience: "provider",
+    applies_to: "20x",
+    limit: 2,
+  });
+
+  assert.equal(brief.kind, "ksi-indicator");
+  assert.equal(brief.linkedProcesses[0]?.id, "ADS");
+  assert.ok(brief.checklist.some((item) => item.id === "ADS-CSO-PUB"));
+  assert.match(brief.text, /Linked process:\s+Authorization Data Sharing \[ADS\]/);
+});
+
+test("artifact and workstream inference stays grounded in official requirement language", () => {
+  const catalog = normalizeFedrampFrmr(frmrFixture);
+  const requirements = catalog.requirements;
+  const indicators = catalog.ksiIndicators;
+
+  const artifacts = inferFedrampArtifactSuggestions(["ADS"], requirements, indicators);
+  const workstreams = inferFedrampWorkstreams(["ADS"], requirements, indicators);
+
+  assert.ok(artifacts.some((item) => item.toLowerCase().includes("trust-center")));
+  assert.ok(workstreams.some((item) => item.toLowerCase().includes("authorization data publishing")));
+  assert.ok(workstreams.some((item) => item.toLowerCase().includes("trust-center operations")));
 });
