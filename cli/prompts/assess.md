@@ -18,6 +18,7 @@ Use the GRC tools to gather high-signal evidence:
 4. EPSS likelihood for any matched CVEs
 5. Ransomware linkage where applicable
 6. SCF control language, crosswalks, and evidence-request guidance when framework interpretation matters
+7. If the assessment needs to roll into OSCAL artifacts, use the OSCAL trestle tools to scaffold or validate the SSP, SAR, or POA&M workspace content
 
 ## Phase 3: Posture Classification
 
@@ -46,5 +47,6 @@ Return:
 2. **Evidence table** — certificate numbers, CVEs, dates, and sources
 3. **Top 3 risks**
 4. **Top 3 next actions**
+5. If requested, note the next OSCAL artifact to update: SSP, assessment results, or POA&M
 
 Be direct. If the evidence is thin, say the assessment confidence is low.
