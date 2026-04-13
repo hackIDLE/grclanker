@@ -14,11 +14,12 @@
     "build": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\" && tsc && npm run brand:embedded-pi",
     "dev": "tsx index.ts",
     "start": "node dist/index.js",
+    "sync:fedramp": "tsx scripts/sync-fedramp.ts",
     "postinstall": "node scripts/patch-embedded-pi.mjs --root .",
     "brand:embedded-pi": "node scripts/patch-embedded-pi.mjs",
     "build:bundle": "node scripts/build-native-bundle.mjs",
     "prepack": "npm run build",
-    "test:cli": "npm run build && node --test tests/isolation.test.mjs tests/oscal.test.mjs tests/scf.test.mjs tests/skill-discovery.test.mjs tests/shell.test.mjs tests/bootstrap-sync.test.mjs tests/sandbox.test.mjs tests/vanta.test.mjs",
+    "test:cli": "npm run build && node --test tests/fedramp.test.mjs tests/isolation.test.mjs tests/oscal.test.mjs tests/scf.test.mjs tests/skill-discovery.test.mjs tests/shell.test.mjs tests/bootstrap-sync.test.mjs tests/sandbox.test.mjs tests/vanta.test.mjs",
     "test:oscal:live": "npm run build && node scripts/oscal-live-smoke.mjs",
     "test:vanta:live": "npm run build && node scripts/vanta-live-smoke.mjs",
     "test:isolation": "npm run build && node --test tests/isolation.test.mjs"

@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "sync:fedramp": "npm --prefix cli run sync:fedramp"
   },
   "dependencies": {
     "@monaco-editor/loader": "^1.7.0",

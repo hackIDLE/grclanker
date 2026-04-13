@@ -26,6 +26,14 @@ export const docsSections = [
       { label: 'Using Specs as Inputs', slug: 'specs/using-specs-as-inputs' },
     ],
   },
+  {
+    title: 'FedRAMP',
+    items: [
+      { label: 'Official Sources', slug: 'fedramp' },
+      { label: 'Processes', slug: 'fedramp/processes' },
+      { label: 'KSI Domains', slug: 'fedramp/ksis' },
+    ],
+  },
 ];
 
 export function getDocHref(slug: string) {

@@ -1,0 +1,50 @@
+name: fedramp-sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 14 * * *"
+
+jobs:
+  sync-fedramp:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22.20.0"
+
+      - name: Install site dependencies
+        run: npm ci
+
+      - name: Install CLI dependencies
+        working-directory: cli
+        run: npm ci
+
+      - name: Sync official FedRAMP sources
+        run: npm run sync:fedramp
+
+      - name: Open reviewed sync PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/fedramp-sync
+          commit-message: "chore: sync official FedRAMP sources"
+          title: "chore: sync official FedRAMP sources"
+          body: |
+            Syncs grclanker's generated FedRAMP docs snapshot from the official FedRAMP GitHub sources.
+
+            - Refreshes the FRMR-backed generated docs content
+            - Preserves reviewed snapshot delivery for the site
+            - Keeps CLI lookups and docs content aligned to the same upstream source
+
+            This PR was opened automatically by the `fedramp-sync` workflow.
+          labels: |
+            automation
+            documentation
