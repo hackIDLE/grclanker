@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -17,9 +17,11 @@ import {
 } from "../dist/extensions/grc-tools/fedramp-source.js";
 import { buildFedrampDocsSnapshot } from "../dist/extensions/grc-tools/fedramp-docs.js";
 import {
+  buildFedrampAdsStarterBundle,
   buildFedrampAdsPackagePlan,
   buildFedrampArtifactPlan,
   buildFedrampReadinessBrief,
+  generateFedrampAdsStarterBundle,
   inferFedrampArtifactSuggestions,
   inferFedrampWorkstreams,
 } from "../dist/extensions/grc-tools/fedramp.js";
@@ -516,4 +518,74 @@ test("ADS package planner groups artifacts into package layers", () => {
   assert.match(plan.text, /Public trust-center layer:/);
   assert.match(plan.text, /Controlled authorization-data layer:/);
   assert.match(plan.text, /Recommended rollout:/);
+});
+
+test("ADS starter bundle builder includes trust-center and feed templates", () => {
+  const catalog = normalizeFedrampFrmr(frmrFixture);
+  const loaded = {
+    catalog,
+    provenance: {
+      repo: "docs",
+      path: "FRMR.documentation.json",
+      branch: "main",
+      blobSha: "abcdef1234567890abcdef1234567890abcdef12",
+      version: "0.9.43-beta",
+      upstreamLastUpdated: "2026-04-08",
+    },
+    cacheStatus: "live",
+    notes: [],
+  };
+
+  const bundle = buildFedrampAdsStarterBundle(loaded, {
+    audience: "trust-center",
+    applies_to: "20x",
+  });
+
+  assert.equal(bundle.bundleName, "ads-starter-bundle");
+  assert.ok(bundle.files.some((file) => file.path === "README.md"));
+  assert.ok(bundle.files.some((file) => file.path === "public/trust-center-summary.md"));
+  assert.ok(bundle.files.some((file) => file.path === "public/authorization-data.json"));
+  assert.ok(bundle.files.some((file) => file.path === "controlled/access-instructions.md"));
+  assert.ok(bundle.files.some((file) => file.path === "private/operating-runbook.md"));
+
+  const readme = bundle.files.find((file) => file.path === "README.md")?.content ?? "";
+  assert.match(readme, /Authorization Data Sharing Starter Bundle/);
+  assert.match(readme, /public\/authorization-data\.json/);
+});
+
+test("ADS starter bundle generator writes scaffold files under the requested root", async () => {
+  const catalog = normalizeFedrampFrmr(frmrFixture);
+  const loaded = {
+    catalog,
+    provenance: {
+      repo: "docs",
+      path: "FRMR.documentation.json",
+      branch: "main",
+      blobSha: "abcdef1234567890abcdef1234567890abcdef12",
+      version: "0.9.43-beta",
+      upstreamLastUpdated: "2026-04-08",
+    },
+    cacheStatus: "live",
+    notes: [],
+  };
+  const outputRoot = mkdtempSync(join(tmpdir(), "grclanker-fedramp-bundle-"));
+
+  try {
+    const result = await generateFedrampAdsStarterBundle(loaded, outputRoot, {
+      audience: "trust-center",
+      applies_to: "20x",
+    });
+
+    assert.ok(result.outputDir.startsWith(realpathSync(outputRoot)));
+    assert.ok(existsSync(join(result.outputDir, "README.md")));
+    assert.ok(existsSync(join(result.outputDir, "public", "authorization-data.json")));
+    assert.ok(existsSync(join(result.outputDir, "controlled", "access-instructions.md")));
+    assert.ok(existsSync(join(result.outputDir, "private", "continuous-validation.md")));
+
+    const metadata = readFileSync(join(result.outputDir, "_source.json"), "utf8");
+    assert.match(metadata, /"process":/);
+    assert.match(metadata, /"ADS"/);
+  } finally {
+    rmSync(outputRoot, { recursive: true, force: true });
+  }
 });

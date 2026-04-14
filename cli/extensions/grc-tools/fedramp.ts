@@ -1,3 +1,12 @@
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  realpathSync,
+  chmodSync,
+} from "node:fs";
+import { chmod, writeFile } from "node:fs/promises";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { Type } from "@sinclair/typebox";
 
 import {
@@ -40,6 +49,11 @@ type PlanningArgs = {
   audience?: "provider" | "trust-center" | "any";
 };
 type AdsPackageArgs = {
+  applies_to?: FedrampApplicability | "any";
+  audience?: "provider" | "trust-center" | "any";
+};
+type AdsBundleArgs = {
+  output_dir?: string;
   applies_to?: FedrampApplicability | "any";
   audience?: "provider" | "trust-center" | "any";
 };
@@ -144,6 +158,26 @@ type AdsPackagePlan = {
   rollout: RolloutPhase[];
   text: string;
 };
+
+type BundleTemplateFile = {
+  path: string;
+  content: string;
+};
+
+type AdsStarterBundle = {
+  bundleName: string;
+  files: BundleTemplateFile[];
+  plan: AdsPackagePlan;
+};
+
+type AdsStarterBundleResult = {
+  outputDir: string;
+  files: string[];
+  plan: AdsPackagePlan;
+};
+
+const DEFAULT_FEDRAMP_OUTPUT_DIR = "./export/fedramp";
+const ADS_BUNDLE_DIRNAME = "ads-starter-bundle";
 
 type ArtifactPlanContext =
   | {
@@ -325,6 +359,25 @@ function normalizeAdsPackageArgs(args: unknown): AdsPackageArgs {
   }
 
   return { applies_to: "20x", audience: "trust-center" };
+}
+
+function normalizeAdsBundleArgs(args: unknown): AdsBundleArgs {
+  if (args && typeof args === "object") {
+    const value = args as Record<string, unknown>;
+    const audienceRaw = asString(value.audience)?.toLowerCase();
+    return {
+      output_dir: asString(value.output_dir) ?? asString(value.output) ?? asString(value.dir),
+      applies_to: normalizeFedrampApplicability(
+        asString(value.applies_to) ?? asString(value.framework) ?? "20x",
+      ),
+      audience:
+        audienceRaw === "trust-center" || audienceRaw === "any" || audienceRaw === "provider"
+          ? audienceRaw
+          : "trust-center",
+    };
+  }
+
+  return { output_dir: undefined, applies_to: "20x", audience: "trust-center" };
 }
 
 function missingQueryResult(toolName: string, example: string) {
@@ -759,6 +812,339 @@ function buildRolloutPhases(items: ArtifactPlanItem[]): RolloutPhase[] {
         .map((item) => item.name),
     }))
     .filter((phase) => phase.items.length > 0);
+}
+
+function ensurePrivateDir(path: string): void {
+  if (existsSync(path)) {
+    const info = lstatSync(path);
+    if (info.isSymbolicLink()) {
+      throw new Error(`Refusing to use symlinked directory: ${path}`);
+    }
+    if (!info.isDirectory()) {
+      throw new Error(`Path is not a directory: ${path}`);
+    }
+  }
+
+  mkdirSync(path, { recursive: true, mode: 0o700 });
+
+  const info = lstatSync(path);
+  if (info.isSymbolicLink()) {
+    throw new Error(`Refusing to use symlinked directory: ${path}`);
+  }
+  if (!info.isDirectory()) {
+    throw new Error(`Path is not a directory: ${path}`);
+  }
+
+  chmodSync(path, 0o700);
+}
+
+function resolveSecureOutputPath(baseDir: string, destPath: string): string {
+  const resolvedBase = realpathSync(resolve(baseDir));
+  const absoluteDest = resolve(destPath);
+
+  if (existsSync(absoluteDest)) {
+    const info = lstatSync(absoluteDest);
+    if (info.isSymbolicLink()) {
+      throw new Error(`Refusing to write through symlink: ${absoluteDest}`);
+    }
+  }
+
+  const resolvedDestDir = realpathSync(resolve(dirname(absoluteDest)));
+  const resolvedDest = join(resolvedDestDir, basename(absoluteDest));
+  const relPath = relative(resolvedBase, resolvedDest);
+  if (relPath.startsWith("..")) {
+    throw new Error("Invalid output path: path traversal detected");
+  }
+
+  return resolvedDest;
+}
+
+async function writeSecureTextFile(baseDir: string, destPath: string, data: string): Promise<string> {
+  ensurePrivateDir(dirname(destPath));
+  const resolvedPath = resolveSecureOutputPath(baseDir, destPath);
+  await writeFile(resolvedPath, data, { mode: 0o600 });
+  await chmod(resolvedPath, 0o600);
+  return resolvedPath;
+}
+
+function nextAvailableBundleDir(rootDir: string, baseName: string): string {
+  let attempt = 0;
+  while (attempt < 100) {
+    const candidateName = attempt === 0 ? baseName : `${baseName}-${attempt + 1}`;
+    const candidate = resolve(rootDir, candidateName);
+    if (!existsSync(candidate)) return candidate;
+    attempt += 1;
+  }
+
+  throw new Error(`Unable to allocate bundle directory under ${rootDir}`);
+}
+
+function findArtifactItem(plan: AdsPackagePlan, name: string): ArtifactPlanItem | undefined {
+  return [
+    ...plan.publicItems,
+    ...plan.controlledItems,
+    ...plan.privateItems,
+  ].find((item) => item.name === name);
+}
+
+function groundedIds(item: ArtifactPlanItem | undefined): string[] {
+  return item?.groundedBy ?? [];
+}
+
+function buildAdsBundleReadme(plan: AdsPackagePlan): string {
+  const lines = [
+    "# Authorization Data Sharing Starter Bundle",
+    "",
+    "This starter bundle was generated by grclanker from the official FedRAMP GitHub-grounded FRMR source layer.",
+    "",
+    `Audience: ${plan.audience}`,
+    `Applies to: ${plan.appliesTo}`,
+    `Official process: ${plan.process.name} [${plan.process.shortName}]`,
+    `Official page: ${plan.process.sourceUrl ?? "Unavailable"}`,
+    "",
+    "What this bundle gives you:",
+    "- Public trust-center starter pages and machine-readable feed skeletons.",
+    "- Controlled-access templates for deeper authorization-data retrieval.",
+    "- Private operating templates for access logging, notification routing, and cadence management.",
+    "",
+    "Recommended rollout:",
+  ];
+
+  for (const phase of plan.rollout) {
+    lines.push(`- ${phase.title} - ${phase.objective}`);
+    for (const item of phase.items) {
+      lines.push(`  - ${item}`);
+    }
+  }
+
+  lines.push(
+    "",
+    "Generated files:",
+    "- public/trust-center-summary.md",
+    "- public/authorization-data.json",
+    "- public/service-inventory.json",
+    "- controlled/access-instructions.md",
+    "- controlled/version-history.md",
+    "- private/operating-runbook.md",
+    "- private/access-log-schema.json",
+    "- private/notification-routing.md",
+    "- private/continuous-validation.md",
+    "- _source.json",
+  );
+
+  return `${lines.join("\n")}\n`;
+}
+
+function buildSourceMetadataFile(
+  loaded: Awaited<ReturnType<typeof loadFedrampCatalog>>,
+  plan: AdsPackagePlan,
+): string {
+  return `${JSON.stringify(
+    {
+      generated_by: "grclanker",
+      bundle: ADS_BUNDLE_DIRNAME,
+      process: {
+        id: plan.process.id,
+        name: plan.process.name,
+        short_name: plan.process.shortName,
+        source_url: plan.process.sourceUrl,
+      },
+      applies_to: plan.appliesTo,
+      audience: plan.audience,
+      linked_indicators: plan.linkedIndicators.map((indicator) => ({
+        id: indicator.id,
+        name: indicator.name,
+        reference: indicator.reference,
+      })),
+      public_items: plan.publicItems,
+      controlled_items: plan.controlledItems,
+      private_items: plan.privateItems,
+      rollout: plan.rollout,
+      provenance: {
+        ...loaded.provenance,
+        cache_status: loaded.cacheStatus,
+        notes: loaded.notes,
+      },
+    },
+    null,
+    2,
+  )}\n`;
+}
+
+function buildTrustCenterSummaryTemplate(plan: AdsPackagePlan): string {
+  const pub = findArtifactItem(plan, "Human-readable authorization summary page");
+  const inventory = findArtifactItem(plan, "Service inventory and assessment-scope page");
+  return `# Trust Center Summary\n\n## Overview\n- Cloud service offering name: TODO\n- FedRAMP status: TODO\n- Marketplace URL: TODO\n- Last updated: TODO\n\n## Public Summary\nDescribe the cloud service offering in plain language for agencies and customers.\n\n## Included Services\nList the services or features in scope using names that match public marketing materials.\n\n## Customer Responsibilities\nDocument the customer-managed responsibilities that affect secure use.\n\n## Scope Notes\nClarify what is in scope, out of scope, and where customers can request deeper authorization data.\n\n## Grounding\n- ${pub ? `${pub.name}: ${groundedIds(pub).join(", ") || "linked official requirements"}` : "Human-readable summary: linked official requirements"}\n- ${inventory ? `${inventory.name}: ${groundedIds(inventory).join(", ") || "linked official requirements"}` : "Service inventory: linked official requirements"}\n`;
+}
+
+function buildAuthorizationDataJsonTemplate(plan: AdsPackagePlan): string {
+  const machineReadable = findArtifactItem(plan, "Machine-readable authorization data feed");
+  return `${JSON.stringify(
+    {
+      bundle_version: "0.1.0-draft",
+      generated_by: "grclanker",
+      fedramp_process: plan.process.shortName,
+      applies_to: plan.appliesTo,
+      offering: {
+        name: "TODO",
+        fedramp_marketplace_url: "TODO",
+        trust_center_url: "TODO",
+        overview: "TODO",
+      },
+      authorization_data: {
+        version: "TODO",
+        last_updated: "TODO",
+        human_readable_url: "TODO",
+        machine_readable_url: "TODO",
+      },
+      included_services: [
+        {
+          name: "TODO",
+          service_model: "TODO",
+          security_objectives: ["TODO"],
+          in_minimum_assessment_scope: true,
+        },
+      ],
+      customer_responsibilities: ["TODO"],
+      grounding: {
+        artifact: machineReadable?.name ?? "Machine-readable authorization data feed",
+        requirement_ids: groundedIds(machineReadable),
+      },
+    },
+    null,
+    2,
+  )}\n`;
+}
+
+function buildServiceInventoryJsonTemplate(plan: AdsPackagePlan): string {
+  const inventory = findArtifactItem(plan, "Service inventory and assessment-scope page");
+  return `${JSON.stringify(
+    {
+      generated_by: "grclanker",
+      process: plan.process.shortName,
+      services: [
+        {
+          name: "TODO",
+          marketing_name: "TODO",
+          included_in_scope: true,
+          security_objectives: ["TODO"],
+          notes: "TODO",
+        },
+      ],
+      shared_responsibility_summary: "TODO",
+      grounding: {
+        artifact: inventory?.name ?? "Service inventory and assessment-scope page",
+        requirement_ids: groundedIds(inventory),
+      },
+    },
+    null,
+    2,
+  )}\n`;
+}
+
+function buildAccessInstructionsTemplate(plan: AdsPackagePlan): string {
+  const access = findArtifactItem(plan, "Controlled authorization-data API and access guide");
+  return `# Authorization Data Access Instructions\n\n## Access Model\nDescribe who can retrieve deeper authorization data, under what conditions, and through which interface.\n\n## Endpoints Or Export Paths\n- API base URL: TODO\n- Authentication method: TODO\n- Rate limits or download guidance: TODO\n\n## Request Steps\n1. TODO\n2. TODO\n3. TODO\n\n## Data Returned\nList the authorization-data records or files the requester can retrieve.\n\n## Grounding\n- ${access ? `${access.name}: ${groundedIds(access).join(", ") || "linked official requirements"}` : "Controlled access guidance: linked official requirements"}\n`;
+}
+
+function buildVersionHistoryTemplate(plan: AdsPackagePlan): string {
+  const history = findArtifactItem(plan, "Version history and change-log archive");
+  return `# Authorization Data Version History\n\n| Version | Effective date | Summary of changes | Delta link |\n| --- | --- | --- | --- |\n| TODO | TODO | TODO | TODO |\n\n## Retention Notes\nDocument how long historical authorization-data versions remain available and who can retrieve them.\n\n## Grounding\n- ${history ? `${history.name}: ${groundedIds(history).join(", ") || "linked official requirements"}` : "Version history: linked official requirements"}\n`;
+}
+
+function buildOperatingRunbookTemplate(plan: AdsPackagePlan): string {
+  return `# ADS Operating Runbook\n\n## Owners\n- Trust-center owner: TODO\n- Security owner: TODO\n- Engineering owner: TODO\n\n## Regular Tasks\n- Publish public summary updates: TODO cadence\n- Refresh machine-readable data: TODO cadence\n- Review access inventory: TODO cadence\n- Review change log and retained versions: TODO cadence\n\n## Escalation Conditions\nList the conditions that require escalation or off-cycle updates.\n\n## Linked Indicators\n${plan.linkedIndicators.map((indicator) => `- ${indicator.id} - ${indicator.name}`).join("\n")}\n`;
+}
+
+function buildAccessLogSchemaTemplate(plan: AdsPackagePlan): string {
+  const logs = findArtifactItem(plan, "Access inventory and authorization-data audit logs");
+  return `${JSON.stringify(
+    {
+      generated_by: "grclanker",
+      schema_name: "authorization_data_access_log",
+      fields: [
+        "event_time",
+        "requester_identity",
+        "requester_org",
+        "resource",
+        "action",
+        "decision",
+        "ip_address",
+        "justification",
+      ],
+      retention_period: "TODO",
+      grounding: {
+        artifact: logs?.name ?? "Access inventory and authorization-data audit logs",
+        requirement_ids: groundedIds(logs),
+      },
+    },
+    null,
+    2,
+  )}\n`;
+}
+
+function buildNotificationRoutingTemplate(plan: AdsPackagePlan): string {
+  const notice = findArtifactItem(plan, "Notification routing and escalation runbook");
+  return `# Notification Routing\n\n## Monitored Channels\n- FedRAMP inbox: TODO\n- Internal escalation channel: TODO\n- Pager or on-call rotation: TODO\n\n## Trigger Matrix\n| Trigger | Notify | SLA | Notes |\n| --- | --- | --- | --- |\n| TODO | TODO | TODO | TODO |\n\n## Grounding\n- ${notice ? `${notice.name}: ${groundedIds(notice).join(", ") || "linked official requirements"}` : "Notification routing: linked official requirements"}\n`;
+}
+
+function buildContinuousValidationTemplate(plan: AdsPackagePlan): string {
+  const cadence = findArtifactItem(plan, "Continuous validation cadence records");
+  return `# Continuous Validation Cadence\n\n## Checks\n- Public trust-center page review: TODO\n- Machine-readable feed refresh: TODO\n- Access inventory review: TODO\n- Version-history retention review: TODO\n\n## Evidence Capture\nDocument where logs, job runs, and review records are stored.\n\n## Grounding\n- ${cadence ? `${cadence.name}: ${groundedIds(cadence).join(", ") || "linked official requirements"}` : "Continuous validation: linked official requirements"}\n`;
+}
+
+export function buildFedrampAdsStarterBundle(
+  loaded: Awaited<ReturnType<typeof loadFedrampCatalog>>,
+  args: AdsBundleArgs,
+): AdsStarterBundle {
+  const plan = buildFedrampAdsPackagePlan(loaded, {
+    applies_to: args.applies_to,
+    audience: args.audience,
+  });
+
+  const files: BundleTemplateFile[] = [
+    { path: "README.md", content: buildAdsBundleReadme(plan) },
+    { path: "_source.json", content: buildSourceMetadataFile(loaded, plan) },
+    { path: "public/trust-center-summary.md", content: buildTrustCenterSummaryTemplate(plan) },
+    { path: "public/authorization-data.json", content: buildAuthorizationDataJsonTemplate(plan) },
+    { path: "public/service-inventory.json", content: buildServiceInventoryJsonTemplate(plan) },
+    { path: "controlled/access-instructions.md", content: buildAccessInstructionsTemplate(plan) },
+    { path: "controlled/version-history.md", content: buildVersionHistoryTemplate(plan) },
+    { path: "private/operating-runbook.md", content: buildOperatingRunbookTemplate(plan) },
+    { path: "private/access-log-schema.json", content: buildAccessLogSchemaTemplate(plan) },
+    { path: "private/notification-routing.md", content: buildNotificationRoutingTemplate(plan) },
+    { path: "private/continuous-validation.md", content: buildContinuousValidationTemplate(plan) },
+  ];
+
+  return {
+    bundleName: ADS_BUNDLE_DIRNAME,
+    files,
+    plan,
+  };
+}
+
+export async function generateFedrampAdsStarterBundle(
+  loaded: Awaited<ReturnType<typeof loadFedrampCatalog>>,
+  outputRoot: string,
+  args: AdsBundleArgs,
+): Promise<AdsStarterBundleResult> {
+  ensurePrivateDir(outputRoot);
+  const canonicalOutputRoot = realpathSync(outputRoot);
+  const bundle = buildFedrampAdsStarterBundle(loaded, args);
+  const outputDir = nextAvailableBundleDir(canonicalOutputRoot, bundle.bundleName);
+  ensurePrivateDir(outputDir);
+
+  const writtenFiles: string[] = [];
+  for (const file of bundle.files) {
+    const absolutePath = await writeSecureTextFile(outputDir, resolve(outputDir, file.path), file.content);
+    writtenFiles.push(absolutePath);
+  }
+
+  return {
+    outputDir,
+    files: writtenFiles,
+    plan: bundle.plan,
+  };
 }
 
 function inferFedrampArtifactPlanItems(
@@ -1970,6 +2356,71 @@ export function registerFedrampTools(pi: any): void {
         return errorResult(
           `FedRAMP ADS package planning failed: ${error instanceof Error ? error.message : String(error)}`,
           { tool: "fedramp_plan_ads_package" },
+        );
+      }
+    },
+  });
+
+  pi.registerTool({
+    name: "fedramp_generate_ads_bundle",
+    label: "Generate ADS starter bundle",
+    description:
+      "Generate an Authorization Data Sharing starter bundle with trust-center, machine-readable feed, access-instructions, and operating-template files grounded in official FedRAMP sources.",
+    parameters: Type.Object({
+      output_dir: Type.Optional(
+        Type.String({
+          description: `Optional output root (default: ${DEFAULT_FEDRAMP_OUTPUT_DIR}).`,
+        }),
+      ),
+      applies_to: Type.Optional(
+        Type.Union([
+          Type.Literal("20x"),
+          Type.Literal("rev5"),
+          Type.Literal("both"),
+          Type.Literal("any"),
+        ]),
+      ),
+      audience: Type.Optional(
+        Type.Union([
+          Type.Literal("provider"),
+          Type.Literal("trust-center"),
+          Type.Literal("any"),
+        ]),
+      ),
+    }),
+    prepareArguments: normalizeAdsBundleArgs,
+    async execute(_toolCallId: string, args: AdsBundleArgs) {
+      try {
+        const loaded = await loadFedrampCatalog();
+        const outputRoot = resolve(process.cwd(), args.output_dir?.trim() || DEFAULT_FEDRAMP_OUTPUT_DIR);
+        const bundle = await generateFedrampAdsStarterBundle(loaded, outputRoot, args);
+        const relativeFiles = bundle.files.map((filePath) => relative(bundle.outputDir, filePath));
+        const lines = [
+          "Authorization Data Sharing starter bundle generated.",
+          `Output dir: ${bundle.outputDir}`,
+          "",
+          "Files:",
+          ...relativeFiles.map((filePath) => `- ${filePath}`),
+          "",
+          "This bundle is a starter scaffold. Fill in the TODO fields, then validate the public, controlled-access, and private operating layers against your actual trust-center and authorization-data workflow.",
+        ];
+
+        return textResult(lines.join("\n"), {
+          tool: "fedramp_generate_ads_bundle",
+          output_dir: bundle.outputDir,
+          files: relativeFiles,
+          public_items: bundle.plan.publicItems,
+          controlled_items: bundle.plan.controlledItems,
+          private_items: bundle.plan.privateItems,
+          rollout: bundle.plan.rollout,
+          provenance: loaded.provenance,
+          cache_status: loaded.cacheStatus,
+          notes: loaded.notes,
+        });
+      } catch (error) {
+        return errorResult(
+          `FedRAMP ADS starter bundle generation failed: ${error instanceof Error ? error.message : String(error)}`,
+          { tool: "fedramp_generate_ads_bundle" },
         );
       }
     },

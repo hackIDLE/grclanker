@@ -21,8 +21,9 @@ Use the GRC tools to gather high-signal evidence:
 7. If you need a practical provider or trust-center brief for a FedRAMP process or KSI, use `fedramp_assess_readiness`
 8. If you need a concrete publication and evidence plan for a FedRAMP process or KSI, use `fedramp_plan_process_artifacts`
 9. If the posture work is really about ADS or trust-center rollout, use `fedramp_plan_ads_package`
-10. SCF control language, crosswalks, and evidence-request guidance when framework interpretation matters
-11. If the assessment needs to roll into OSCAL artifacts, use the OSCAL trestle tools to scaffold or validate the SSP, SAR, or POA&M workspace content
+10. If the team is ready for a scaffold instead of another plan, use `fedramp_generate_ads_bundle`
+11. SCF control language, crosswalks, and evidence-request guidance when framework interpretation matters
+12. If the assessment needs to roll into OSCAL artifacts, use the OSCAL trestle tools to scaffold or validate the SSP, SAR, or POA&M workspace content
 
 ## Phase 3: Posture Classification
 
