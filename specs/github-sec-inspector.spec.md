@@ -3,8 +3,8 @@ slug: "github-sec-inspector"
 name: "GitHub Security Inspector"
 vendor: "GitHub"
 category: "devops-developer-platforms"
-language: "go"
-status: "spec-only"
+language: "typescript"
+status: "implemented"
 version: "1.0"
 last_updated: "2026-03-29"
 source_repo: "https://github.com/hackIDLE/github-sec-inspector"
@@ -18,7 +18,9 @@ source_repo: "https://github.com/hackIDLE/github-sec-inspector"
 
 Misconfigurations at the organization or enterprise level — unenforced SSO, missing two-factor authentication requirements, overly permissive member base permissions, unprotected default branches, disabled security scanning, unrestricted Actions workflows, or unmonitored OAuth/GitHub App integrations — can expose source code, enable supply chain attacks, leak secrets, and undermine the software development lifecycle. Because GitHub is the central nervous system of modern software delivery, its security posture directly determines an organization's exposure to code tampering, credential theft, and insider threats.
 
-**github-sec-inspector** is an automated compliance inspection tool that connects to a GitHub organization (or enterprise) via the REST API v3 and GraphQL API v4, collects security-relevant configuration data across organization settings, repositories, branch protection, code security features, and access controls, evaluates the configuration against hardened baselines derived from multiple compliance frameworks, and produces actionable reports with framework-specific control mappings.
+**github-sec-inspector** is an automated compliance inspection tool that connects to a GitHub organization (or enterprise) via the GitHub APIs, collects security-relevant configuration data across organization settings, repositories, rulesets, Actions posture, code security features, and access controls, evaluates the configuration against hardened baselines derived from multiple compliance frameworks, and produces actionable reports with framework-specific control mappings.
+
+The current implementation ships natively inside `grclanker` as a TypeScript tool family: `github_check_access`, `github_assess_org_access`, `github_assess_repo_protection`, `github_assess_actions_security`, `github_assess_code_security`, and `github_export_audit_bundle`.
 
 ## 2. APIs & SDKs
 

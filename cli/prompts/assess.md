@@ -25,8 +25,9 @@ Use the GRC tools to gather high-signal evidence:
 11. If the team needs a public ADS trust-center site they can host in AWS, Azure, or GCP, use `fedramp_generate_ads_site`
 12. If the subject is a Duo tenant, start with `duo_check_access`, then use the focused Duo assessment tools or `duo_export_audit_bundle` to ground posture claims in collected tenant evidence
 13. If the subject is an Okta tenant, start with `okta_check_access`, then use the focused Okta assessment tools or `okta_export_audit_bundle` to ground posture claims in collected tenant evidence
-14. SCF control language, crosswalks, and evidence-request guidance when framework interpretation matters
-15. If the assessment needs to roll into OSCAL artifacts, use the OSCAL trestle tools to scaffold or validate the SSP, SAR, or POA&M workspace content
+14. If the subject is a GitHub organization, start with `github_check_access`, then use the focused GitHub assessment tools or `github_export_audit_bundle` to ground posture claims in collected org evidence
+15. SCF control language, crosswalks, and evidence-request guidance when framework interpretation matters
+16. If the assessment needs to roll into OSCAL artifacts, use the OSCAL trestle tools to scaffold or validate the SSP, SAR, or POA&M workspace content
 
 ## Phase 3: Posture Classification
 
