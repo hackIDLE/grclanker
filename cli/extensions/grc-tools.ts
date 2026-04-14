@@ -24,6 +24,7 @@ import { registerCmvpTools } from "./grc-tools/cmvp.js";
 import { registerDuoTools } from "./grc-tools/duo.js";
 import { registerFedrampTools } from "./grc-tools/fedramp.js";
 import { registerGitHubTools } from "./grc-tools/github.js";
+import { registerGwsTools } from "./grc-tools/gws.js";
 import { installGrclankerHeader } from "./grc-tools/header.js";
 import { registerKevsTools } from "./grc-tools/kevs.js";
 import { registerOktaTools } from "./grc-tools/okta.js";
@@ -31,7 +32,7 @@ import { registerOscalTools } from "./grc-tools/oscal.js";
 import { registerScfTools } from "./grc-tools/scf.js";
 import { registerVantaTools } from "./grc-tools/vanta.js";
 
-const DOMAIN_TOOL_COUNT = 50;
+const DOMAIN_TOOL_COUNT = 56;
 
 function resolveCliVersion(currentDir: string): string {
   const candidatePaths = [
@@ -188,6 +189,7 @@ export default function grcTools(pi: ExtensionAPI): void {
   registerDuoTools(pi);
   registerFedrampTools(pi);
   registerGitHubTools(pi);
+  registerGwsTools(pi);
   registerKevsTools(pi);
   registerOktaTools(pi);
   registerOscalTools(pi);

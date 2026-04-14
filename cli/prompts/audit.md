@@ -24,10 +24,11 @@ Use the available GRC tools first:
 9. If the scope is a Duo tenant, start with `duo_check_access`, then run the focused Duo assessment that matches the question before falling back to `duo_export_audit_bundle`
 10. If the scope is an Okta tenant, start with `okta_check_access`, then run the focused assessment that matches the question before falling back to `okta_export_audit_bundle`
 11. If the scope is a GitHub organization, start with `github_check_access`, then run the focused GitHub assessment that matches the question before falling back to `github_export_audit_bundle`
-12. If the scope is a Vanta audit, start with `vanta_check_access`, then use `vanta_list_audits` and `vanta_export_audit` to pull an offline evidence package before classifying controls
-13. If you need control language, crosswalk mappings, or artifact guidance, use `scf_search_controls`, `scf_get_control`, `scf_get_crosswalk`, and `scf_get_evidence_request`
-14. If the deliverable needs to become a portable OSCAL artifact, start with `oscal_check_trestle`, then use `oscal_init_workspace`, `oscal_import_model` or `oscal_create_model`, and the SSP helpers as needed
-15. Collect certificate numbers, CVE IDs, due dates, and source URLs inline
+12. If the scope is a Google Workspace tenant, start with `gws_check_access`, then run the focused GWS assessment that matches the question before falling back to `gws_export_audit_bundle`
+13. If the scope is a Vanta audit, start with `vanta_check_access`, then use `vanta_list_audits` and `vanta_export_audit` to pull an offline evidence package before classifying controls
+14. If you need control language, crosswalk mappings, or artifact guidance, use `scf_search_controls`, `scf_get_control`, `scf_get_crosswalk`, and `scf_get_evidence_request`
+15. If the deliverable needs to become a portable OSCAL artifact, start with `oscal_check_trestle`, then use `oscal_init_workspace`, `oscal_import_model` or `oscal_create_model`, and the SSP helpers as needed
+16. Collect certificate numbers, CVE IDs, due dates, and source URLs inline
 
 If evidence is missing, say exactly what is missing and what artifact would close the gap.
 

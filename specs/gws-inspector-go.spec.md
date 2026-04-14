@@ -3,14 +3,32 @@ slug: "gws-inspector-go"
 name: "Google Workspace Inspector"
 vendor: "Google"
 category: "identity-access-management"
-language: "go"
-status: "spec-only"
+language: "typescript"
+status: "implemented"
 version: "1.0"
 last_updated: "2026-03-29"
 source_repo: "https://github.com/hackIDLE/gws-inspector-go"
 ---
 
 # gws-inspector-go — Architecture Specification
+
+Implemented in grclanker as the first Google Workspace tool family:
+
+- `gws_check_access`
+- `gws_assess_identity`
+- `gws_assess_admin_access`
+- `gws_assess_integrations`
+- `gws_assess_monitoring`
+- `gws_export_audit_bundle`
+
+The current grclanker implementation keeps the original multi-framework audit intent, but the first slice is intentionally bounded to the stable Google Workspace Admin SDK surfaces that are well suited to read-only GRC assessment:
+
+- Admin SDK Directory API for users, roles, and role assignments
+- Admin SDK Reports API for login, admin, and token audit activity
+- Alert Center API for tenant security alerts
+- Per-user token inventory for bounded third-party OAuth review
+
+The v1 auth path centers on service-account-based domain-wide delegated access, with optional direct bearer-token support for smoke tests or externally managed auth flows.
 
 ## Overview
 
