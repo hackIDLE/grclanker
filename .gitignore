@@ -1,15 +1,22 @@
 # Dependencies
 node_modules/
 cli/.cache/
+cli/dist/
 cli/release/
 
 # Astro
 dist/
 .astro/
 
+# Generated evidence and local workspaces
+export/
+oscal-workspace/
+
 # Environment
 .env
 .env.*
+.envrc
+.secrets/
 
 # OS
 .DS_Store
@@ -28,6 +35,18 @@ Thumbs.db
 .factory/
 skills-lock.json
 grclanker-local/
+
+# Local auth and tenant credentials
+.okta.yaml
+credentials.json
+client_secret.json
+*client_secret*.json
+*client-secret*.json
+service-account.json
+service-account-*.json
+*service-account*.json
+*.credentials.json
+*.sa.json
 
 # Internal docs (mascots, design refs, marketing)
 /docs/

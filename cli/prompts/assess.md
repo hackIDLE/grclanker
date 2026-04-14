@@ -27,8 +27,9 @@ Use the GRC tools to gather high-signal evidence:
 13. If the subject is an Okta tenant, start with `okta_check_access`, then use the focused Okta assessment tools or `okta_export_audit_bundle` to ground posture claims in collected tenant evidence
 14. If the subject is a GitHub organization, start with `github_check_access`, then use the focused GitHub assessment tools or `github_export_audit_bundle` to ground posture claims in collected org evidence
 15. If the subject is a Google Workspace tenant, start with `gws_check_access`, then use the focused GWS assessment tools or `gws_export_audit_bundle` to ground posture claims in collected tenant evidence
-16. SCF control language, crosswalks, and evidence-request guidance when framework interpretation matters
-17. If the assessment needs to roll into OSCAL artifacts, use the OSCAL trestle tools to scaffold or validate the SSP, SAR, or POA&M workspace content
+16. If the Google Workspace task is really operator-side investigation or raw evidence collection and `gws` is installed, use `gws_ops_check_cli` and the focused `gws_ops_*` workflows instead of stretching the native posture tools past their purpose
+17. SCF control language, crosswalks, and evidence-request guidance when framework interpretation matters
+18. If the assessment needs to roll into OSCAL artifacts, use the OSCAL trestle tools to scaffold or validate the SSP, SAR, or POA&M workspace content
 
 ## Phase 3: Posture Classification
 

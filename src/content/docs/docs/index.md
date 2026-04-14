@@ -5,7 +5,7 @@ description: Start with the bundle installer, run setup, pick local-first or hos
 
 `grclanker` is an experimental open source AI GRC companion built on top of Pi.
 
-The current release starts with CMVP, KEV, EPSS, official FedRAMP GitHub-grounded 20x and Rev5 lookups, FedRAMP readiness, ADS package planning, starter-bundle generation, portable public trust-center site generation, read-only Duo, Okta, GitHub, and Google Workspace compliance assessments and audit export, posture mapping, Vanta audit export, SCF lookups, trestle-backed OSCAL helpers, and spec-driven build inputs, but that is the opening surface, not the ceiling. The real flow is short:
+The current release starts with CMVP, KEV, EPSS, official FedRAMP GitHub-grounded 20x and Rev5 lookups, FedRAMP readiness, ADS package planning, starter-bundle generation, portable public trust-center site generation, read-only Duo, Okta, GitHub, and Google Workspace compliance assessments, an optional Google Workspace CLI operator bridge, posture mapping, Vanta audit export, SCF lookups, trestle-backed OSCAL helpers, and spec-driven build inputs, but that is the opening surface, not the ceiling. The real flow is short:
 
 1. Install the companion.
 2. Run `grclanker setup`.
@@ -45,6 +45,7 @@ If you want the path that best matches the current product direction:
 - `okta_check_access`, `okta_assess_authentication`, `okta_assess_admin_access`, `okta_assess_integrations`, `okta_assess_monitoring`, and `okta_export_audit_bundle` for read-only, multi-framework Okta posture work.
 - `github_check_access`, `github_assess_org_access`, `github_assess_repo_protection`, `github_assess_actions_security`, `github_assess_code_security`, and `github_export_audit_bundle` for read-only, multi-framework GitHub organization posture work.
 - `gws_check_access`, `gws_assess_identity`, `gws_assess_admin_access`, `gws_assess_integrations`, `gws_assess_monitoring`, and `gws_export_audit_bundle` for read-only, multi-framework Google Workspace tenant posture work.
+- `gws_ops_check_cli`, `gws_ops_investigate_alerts`, `gws_ops_trace_admin_activity`, `gws_ops_review_tokens`, and `gws_ops_collect_evidence_bundle` for optional, read-only Google Workspace CLI operator evidence collection.
 - Repo specs as build inputs under [`/specs`](/specs) and [`/docs/specs/using-specs-as-inputs/`](/docs/specs/using-specs-as-inputs/).
 
 ## Important Release Note
