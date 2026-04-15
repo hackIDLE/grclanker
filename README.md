@@ -156,7 +156,7 @@ grclanker "read specs/aws-sec-inspector.spec.md and build the tool"
 
 The intended flow is not “pick between the specs and the CLI.” The intended flow is install the CLI, configure it, and then point it at a spec when you want the repo’s build plans executed.
 
-The catalog currently covers cloud infrastructure, IAM, security tooling, vulnerability platforms, observability, SaaS apps, and developer platforms.
+The catalog currently covers cloud infrastructure, IAM, security tooling, vulnerability platforms, observability, SaaS apps, developer platforms, and community-contributed specs.
 
 ## Experimental Release Bundles
 

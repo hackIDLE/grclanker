@@ -66,6 +66,26 @@ const editUrl = `https://github.com/hackIDLE/grclanker/edit/main/specs/${meta.sl
               {meta.last_updated}
             </span>
           </div>
+          {meta.contributor && (
+            <p class="mt-3 text-xs text-subtext0">
+              Community spec contributed by{' '}
+              {meta.contributor_url ? (
+                <a href={meta.contributor_url} target="_blank" rel="noopener" class="text-blue hover:text-lavender">
+                  @{meta.contributor}
+                </a>
+              ) : (
+                <span class="text-subtext1">@{meta.contributor}</span>
+              )}
+              {meta.source_pr && (
+                <>
+                  {' '}via{' '}
+                  <a href={meta.source_pr} target="_blank" rel="noopener" class="text-blue hover:text-lavender">
+                    PR #4
+                  </a>
+                </>
+              )}
+            </p>
+          )}
         </div>
 
         <div class="flex flex-wrap items-center gap-2 lg:max-w-[18rem] lg:justify-end">
