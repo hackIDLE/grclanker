@@ -31,7 +31,12 @@ const categories = groupSpecsByCategory(specs);
       catSpecs.length > 0 && (
         <div class="mb-8 last:mb-0">
           <div class="spec-category-head">
-            <img src={`/categories/${key}.webp`} alt="" class="spec-category-image" loading="lazy" />
+            <img
+              src={`/categories/${key === 'community-specs' ? 'devops-developer-platforms' : key}.webp`}
+              alt=""
+              class="spec-category-image"
+              loading="lazy"
+            />
             <div class="spec-category-overlay">
               <h3 class="spec-category-title">{label}</h3>
               <span class="spec-category-count">{catSpecs.length} specs</span>

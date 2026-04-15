@@ -2,15 +2,21 @@
 slug: ansible-sec-inspector
 name: Ansible AAP Security Inspector
 vendor: Red Hat
-category: devops-developer-platforms
+category: community-specs
 language: go
 status: spec-only
 version: "1.0"
-last_updated: "2026-04-03"
-source_repo: "TBD"
+last_updated: "2026-04-15"
+source_repo: "https://github.com/hackIDLE/grclanker"
+source_pr: "https://github.com/hackIDLE/grclanker/pull/4"
+contributor: "GRCJP"
+contributor_url: "https://github.com/GRCJP"
 ---
 
 # ansible-sec-inspector — Architecture Specification
+
+Community spec contributed by [GRCJP](https://github.com/GRCJP) in
+[hackIDLE/grclanker#4](https://github.com/hackIDLE/grclanker/pull/4).
 
 ## 1. Overview
 
@@ -252,6 +258,10 @@ export AAP_TOKEN=your-oauth2-token
 | `AAP_TIMEOUT` | Optional | Request timeout in seconds (default: 30) |
 
 *Either `AAP_TOKEN` or both `AAP_USERNAME`/`AAP_PASSWORD` required.
+Do not accept passwords as command-line arguments. For interactive session auth,
+read `AAP_PASSWORD` from the environment first; if it is absent, securely prompt
+for the password with terminal echo disabled. In non-interactive mode, fail with
+a clear missing-credential error instead of prompting.
 
 ### 3.4 Auth Implementation Note
 
@@ -396,7 +406,7 @@ ansible-sec-inspector/
 │       └── main.go                  # Entrypoint, CLI parsing, orchestration
 ├── internal/
 │   ├── client/
-│   │   ├── client.go                # HTTP client with base64 auth header
+│   │   ├── client.go                # HTTP client with standard Basic auth helper
 │   │   ├── auth.go                  # Session auth (LDAP) + Bearer token (local)
 │   │   ├── paginate.go              # Offset pagination follower
 │   │   └── ratelimit.go             # Rate limiting and retry logic
@@ -498,9 +508,9 @@ ansible-sec-inspector/
   The client must support session-based auth (POST to `/api/login/`, CSRF cookie
   handling) as the primary auth path — not just Bearer token auth.
 
-- **Manual base64 header:** Build `Authorization: Basic base64(user:pass)` manually
-  rather than using HTTP library auth helpers. This handles `@` in usernames and
-  special characters in passwords more reliably (identical to curl `-u` behavior).
+- **Standard Basic Auth helper:** Use Go's `req.SetBasicAuth(username, password)`
+  for Basic authentication. Only fall back to manual `Authorization` header
+  construction if a specific, tested AAP interoperability issue is documented.
 
 - **Paginated `/api/v2/me/` response:** AAP returns a paginated list from this
   endpoint, not a single user object. Auth validation must check `count > 0` and
@@ -532,10 +542,10 @@ ansible-sec-inspector/
 
 ```bash
 # Basic audit with session auth (LDAP accounts)
+export AAP_PASSWORD=your.password
 ansible-sec-inspector audit \
   --url https://aap.example.com \
-  --username your.username \
-  --password $AAP_PASSWORD
+  --username your.username
 
 # Audit with Bearer token (local accounts)
 ansible-sec-inspector audit \
@@ -543,71 +553,71 @@ ansible-sec-inspector audit \
   --token $AAP_TOKEN
 
 # Audit last 90 days, all controls, table output (default)
+export AAP_PASSWORD=your.password
 ansible-sec-inspector audit \
   --url https://aap.example.com \
   --username your.username \
-  --password $AAP_PASSWORD \
   --days 90
 
 # Specific control categories only
+export AAP_PASSWORD=your.password
 ansible-sec-inspector audit \
   --url https://aap.example.com \
   --username your.username \
-  --password $AAP_PASSWORD \
   --controls jobs,hosts,credentials
 
 # JSON output for downstream processing
+export AAP_PASSWORD=your.password
 ansible-sec-inspector audit \
   --url https://aap.example.com \
   --username your.username \
-  --password $AAP_PASSWORD \
   --output json \
   --output-file findings.json
 
 # HTML report with executive summary
+export AAP_PASSWORD=your.password
 ansible-sec-inspector audit \
   --url https://aap.example.com \
   --username your.username \
-  --password $AAP_PASSWORD \
   --output html \
   --output-file audit-report.html
 
 # Skip TLS verification (Zscaler SSL inspection environments)
+export AAP_PASSWORD=your.password
 ansible-sec-inspector audit \
   --url https://aap.example.com \
   --username your.username \
-  --password $AAP_PASSWORD \
   --skip-tls-verify
 
 # Custom thresholds
+export AAP_PASSWORD=your.password
 ansible-sec-inspector audit \
   --url https://aap.example.com \
   --username your.username \
-  --password $AAP_PASSWORD \
   --min-success-rate 95 \
   --stale-host-days 14 \
   --stale-template-days 60 \
   --stale-credential-days 90
 
 # Framework-specific compliance matrix
+export AAP_PASSWORD=your.password
 ansible-sec-inspector audit \
   --url https://aap.example.com \
   --username your.username \
-  --password $AAP_PASSWORD \
   --output matrix \
   --frameworks fedramp,cmmc,pci-dss
 
 # Interactive TUI mode
+export AAP_PASSWORD=your.password
 ansible-sec-inspector --tui \
   --url https://aap.example.com \
-  --username your.username \
-  --password $AAP_PASSWORD
+  --username your.username
 
 # Validate connectivity only
+export AAP_PASSWORD=your.password
 ansible-sec-inspector validate \
   --url https://aap.example.com \
-  --username your.username \
-  --password $AAP_PASSWORD
+  --username your.username
 
 # List controls available
 ansible-sec-inspector controls list
@@ -625,7 +635,6 @@ ansible-sec-inspector audit --output json --output-file findings.json
 Global Flags:
   --url string          AAP base URL (or AAP_URL env var)
   --username string     Username for session auth (or AAP_USERNAME env var)
-  --password string     Password for session auth (or AAP_PASSWORD env var)
   --token string        Bearer token for local accounts (or AAP_TOKEN env var)
   --skip-tls-verify     Skip TLS certificate verification
   --timeout int         Request timeout in seconds (default: 30)
@@ -661,9 +670,9 @@ Threshold Flags:
 
 ### Phase 1 — Foundation (Week 1)
 
-- Initialize Go module: `go mod init github.com/your-org/ansible-sec-inspector`
+- Initialize Go module: `go mod init github.com/hackIDLE/ansible-sec-inspector`
 - Add dependencies: cobra, bubbletea, lipgloss, zap, yaml.v3
-- Implement `internal/client/` — HTTP client with base64 auth, session cookie
+- Implement `internal/client/` — HTTP client with Basic auth helper, session cookie
   handling, CSRF token support, paginator
 - Implement `internal/models/` — `AAPData`, `ComplianceFinding`, `AuditResult`, severity constants
 - Validate auth against `/api/v2/me/` with correct paginated response parsing
@@ -715,4 +724,4 @@ Threshold Flags:
 
 **Not yet implemented. Spec only.**
 
-Mirrors the grclanker spec format: https://github.com/ethanolivertroy/grclanker
+Mirrors the grclanker spec format: https://github.com/hackIDLE/grclanker

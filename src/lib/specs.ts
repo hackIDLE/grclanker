@@ -7,6 +7,9 @@ export interface SpecMeta {
   status: string;
   version: string;
   source_repo: string;
+  source_pr?: string;
+  contributor?: string;
+  contributor_url?: string;
   last_updated: string;
 }
 
@@ -38,6 +41,7 @@ export const categoryLabels: Record<string, string> = {
   'monitoring-logging-observability': 'Monitoring, Logging & Observability',
   'saas-collaboration': 'SaaS & Collaboration',
   'devops-developer-platforms': 'DevOps & Developer Platforms',
+  'community-specs': 'Community Specs',
 };
 
 export const RAW_BASE = 'https://raw.githubusercontent.com/hackIDLE/grclanker/main/specs';

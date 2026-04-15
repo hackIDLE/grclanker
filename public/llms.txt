@@ -7,6 +7,7 @@
 All specs are available as raw markdown. Point your agent at any URL below.
 
 - [AWS Security Inspector](https://raw.githubusercontent.com/hackIDLE/grclanker/main/specs/aws-sec-inspector.spec.md): Multi-framework security compliance audit tool for AWS environments
+- [Ansible AAP Security Inspector](https://raw.githubusercontent.com/hackIDLE/grclanker/main/specs/ansible-sec-inspector.spec.md): Community spec for auditing Ansible Automation Platform security posture
 - [Azure Security Inspector](https://raw.githubusercontent.com/hackIDLE/grclanker/main/specs/azure-sec-inspector.spec.md): Azure subscriptions and M365 tenants via Graph API, ARM, Defender for Cloud
 - [Box Security Inspector](https://raw.githubusercontent.com/hackIDLE/grclanker/main/specs/box-sec-inspector.spec.md): Authentication policies, sharing controls, data governance, device trust
 - [Cloudflare Security Inspector](https://raw.githubusercontent.com/hackIDLE/grclanker/main/specs/cloudflare-sec-inspector.spec.md): WAF configs, Zero Trust policies, SSL/TLS, DNS security
