@@ -1,0 +1,73 @@
+{
+  "name": "@grclanker/cli",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Experimental local-first GRC CLI for CMVP, KEV, EPSS, and framework-mapped posture work",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hackIDLE/grclanker.git"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "bin": {
+    "grclanker": "./bin/grclanker.js"
+  },
+  "scripts": {
+    "build": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\" && tsc && npm run brand:embedded-pi",
+    "dev": "tsx index.ts",
+    "start": "node dist/index.js",
+    "sync:fedramp": "tsx scripts/sync-fedramp.ts",
+    "postinstall": "node scripts/patch-embedded-pi.mjs --root .",
+    "brand:embedded-pi": "node scripts/patch-embedded-pi.mjs",
+    "build:bundle": "node scripts/build-native-bundle.mjs",
+    "prepack": "npm run build",
+    "test:cli": "npm run build && node --test tests/duo.test.mjs tests/fedramp.test.mjs tests/github.test.mjs tests/gws-ops.test.mjs tests/gws.test.mjs tests/isolation.test.mjs tests/okta.test.mjs tests/oscal.test.mjs tests/scf.test.mjs tests/skill-discovery.test.mjs tests/shell.test.mjs tests/bootstrap-sync.test.mjs tests/sandbox.test.mjs tests/vanta.test.mjs",
+    "test:duo:live": "npm run build && node scripts/duo-live-smoke.mjs",
+    "test:github:live": "npm run build && node scripts/github-live-smoke.mjs",
+    "test:gws-ops:live": "npm run build && node scripts/gws-ops-live-smoke.mjs",
+    "test:gws:live": "npm run build && node scripts/gws-live-smoke.mjs",
+    "test:okta:live": "npm run build && node scripts/okta-live-smoke.mjs",
+    "test:oscal:live": "npm run build && node scripts/oscal-live-smoke.mjs",
+    "test:vanta:live": "npm run build && node scripts/vanta-live-smoke.mjs",
+    "test:isolation": "npm run build && node --test tests/isolation.test.mjs"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "extensions",
+    "prompts",
+    "scripts",
+    "skills",
+    ".grclanker"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions"
+    ],
+    "prompts": [
+      "./prompts"
+    ],
+    "skills": [
+      "./skills"
+    ]
+  },
+  "dependencies": {
+    "@anthropic-ai/sandbox-runtime": "^0.0.49",
+    "@clack/prompts": "^1.2.0",
+    "@mariozechner/pi-ai": "^0.65.2",
+    "@mariozechner/pi-coding-agent": "^0.65.2",
+    "@sinclair/typebox": "^0.34.48",
+    "archiver": "^7.0.1",
+    "yaml": "^2.8.3"
+  },
+  "devDependencies": {
+    "@types/archiver": "^7.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "overrides": {
+    "basic-ftp": "5.2.2"
+  }
+}

@@ -7,7 +7,7 @@ language: "go"
 status: "spec-only"
 version: "1.0"
 last_updated: "2026-03-29"
-source_repo: "https://github.com/ethanolivertroy/paloalto-sec-inspector"
+source_repo: "https://github.com/hackIDLE/paloalto-sec-inspector"
 ---
 
 # paloalto-sec-inspector -- Architecture Specification
@@ -255,7 +255,7 @@ fw = Firewall('10.0.0.1', 'admin', 'password')
 
 ## 7. Architecture
 
-The project mirrors the structure of [okta-inspector](https://github.com/ethanolivertroy/okta-inspector):
+The project mirrors the structure of [okta-inspector-py](https://github.com/hackIDLE/okta-inspector-py):
 
 ```
 paloalto-sec-inspector/

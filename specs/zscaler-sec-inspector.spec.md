@@ -7,7 +7,7 @@ language: "go"
 status: "spec-only"
 version: "1.0"
 last_updated: "2026-03-29"
-source_repo: "https://github.com/ethanolivertroy/zscaler-sec-inspector"
+source_repo: "https://github.com/hackIDLE/zscaler-sec-inspector"
 ---
 
 # zscaler-sec-inspector -- Architecture Specification
@@ -268,7 +268,7 @@ Zscaler is migrating to a unified OAuth2 framework called OneAPI. The `zscaler-s
 
 ## 7. Architecture
 
-The project mirrors the structure of [okta-inspector](https://github.com/ethanolivertroy/okta-inspector):
+The project mirrors the structure of [okta-inspector-py](https://github.com/hackIDLE/okta-inspector-py):
 
 ```
 zscaler-sec-inspector/
