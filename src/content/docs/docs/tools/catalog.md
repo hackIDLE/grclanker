@@ -7,7 +7,7 @@ description: Bundled grclanker GRC and compute tools grouped by domain.
 
 Current bundled surface:
 
-- 87 domain tools
+- 97 domain tools
 - 7 compute backend tools
 
 ## Compute Backend
@@ -51,6 +51,16 @@ Current bundled surface:
 | `azure_assess_subscription_guardrails` | Assess Azure subscription guardrails |
 | `azure_check_access` | Check Azure audit access |
 | `azure_export_audit_bundle` | Export Azure audit bundle |
+
+## Cloudflare
+
+| Tool | Purpose |
+|---|---|
+| `cloudflare_assess_identity` | Assess Cloudflare identity posture |
+| `cloudflare_assess_traffic_controls` | Assess Cloudflare traffic controls |
+| `cloudflare_assess_zone_security` | Assess Cloudflare zone security |
+| `cloudflare_check_access` | Check Cloudflare audit access |
+| `cloudflare_export_audit_bundle` | Export Cloudflare audit bundle |
 
 ## CMVP
 
@@ -137,6 +147,16 @@ Current bundled surface:
 | `kevs_get_epss` | Get EPSS Exploit Probability |
 | `kevs_recent` | List Recently Added KEV Entries |
 | `kevs_search` | Search Known Exploited Vulnerabilities |
+
+## OCI
+
+| Tool | Purpose |
+|---|---|
+| `oci_assess_identity` | Assess OCI identity posture |
+| `oci_assess_logging_detection` | Assess OCI logging and detection |
+| `oci_assess_tenancy_guardrails` | Assess OCI tenancy guardrails |
+| `oci_check_access` | Check OCI audit access |
+| `oci_export_audit_bundle` | Export OCI audit bundle |
 
 ## Okta
 
