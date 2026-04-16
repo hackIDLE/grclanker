@@ -41,6 +41,7 @@ If you want the path that best matches the current product direction:
 - `fedramp_plan_process_artifacts` and `fedramp_plan_ads_package` when you need a concrete trust-center and evidence rollout plan instead of another lookup.
 - `fedramp_generate_ads_bundle` when you want grclanker to scaffold an ADS starter package you can actually start filling in.
 - `fedramp_generate_ads_site` when you want a portable public trust-center site bundle customers can deploy in their own AWS, Azure, or GCP environment.
+- `aws_check_access`, `aws_assess_identity`, `aws_assess_logging_detection`, `aws_assess_org_guardrails`, and `aws_export_audit_bundle` for read-only AWS account and organization posture work.
 - `duo_check_access`, `duo_assess_authentication`, `duo_assess_admin_access`, `duo_assess_integrations`, `duo_assess_monitoring`, and `duo_export_audit_bundle` for read-only, multi-framework Duo posture work.
 - `okta_check_access`, `okta_assess_authentication`, `okta_assess_admin_access`, `okta_assess_integrations`, `okta_assess_monitoring`, and `okta_export_audit_bundle` for read-only, multi-framework Okta posture work.
 - `github_check_access`, `github_assess_org_access`, `github_assess_repo_protection`, `github_assess_actions_security`, `github_assess_code_security`, and `github_export_audit_bundle` for read-only, multi-framework GitHub organization posture work.

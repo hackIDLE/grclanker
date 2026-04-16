@@ -7,7 +7,7 @@ description: Bundled grclanker GRC and compute tools grouped by domain.
 
 Current bundled surface:
 
-- 72 domain tools
+- 77 domain tools
 - 7 compute backend tools
 
 ## Compute Backend
@@ -31,6 +31,16 @@ Current bundled surface:
 | `ansible_assess_platform_security` | Assess Ansible AAP platform security |
 | `ansible_check_access` | Check Ansible AAP audit access |
 | `ansible_export_audit_bundle` | Export Ansible AAP audit bundle |
+
+## AWS
+
+| Tool | Purpose |
+|---|---|
+| `aws_assess_identity` | Assess AWS identity posture |
+| `aws_assess_logging_detection` | Assess AWS logging and detection |
+| `aws_assess_org_guardrails` | Assess AWS organization guardrails |
+| `aws_check_access` | Check AWS audit access |
+| `aws_export_audit_bundle` | Export AWS audit bundle |
 
 ## CMVP
 

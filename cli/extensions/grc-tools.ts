@@ -21,6 +21,7 @@ import { resetSandboxRuntime } from "../pi/sandbox.js";
 import { executeComputeAwareGrep } from "../pi/search-tools.js";
 import { readGrclankerSettings } from "../pi/settings.js";
 import { registerAnsibleTools } from "./grc-tools/ansible.js";
+import { registerAwsTools } from "./grc-tools/aws.js";
 import { registerCmvpTools } from "./grc-tools/cmvp.js";
 import { registerDuoTools } from "./grc-tools/duo.js";
 import { registerFedrampTools } from "./grc-tools/fedramp.js";
@@ -35,7 +36,7 @@ import { registerScfTools } from "./grc-tools/scf.js";
 import { registerSlackTools } from "./grc-tools/slack.js";
 import { registerVantaTools } from "./grc-tools/vanta.js";
 
-const DOMAIN_TOOL_COUNT = 72;
+const DOMAIN_TOOL_COUNT = 77;
 
 function resolveCliVersion(currentDir: string): string {
   const candidatePaths = [
@@ -189,6 +190,7 @@ export default function grcTools(pi: ExtensionAPI): void {
   });
 
   registerAnsibleTools(pi);
+  registerAwsTools(pi);
   registerCmvpTools(pi);
   registerDuoTools(pi);
   registerFedrampTools(pi);

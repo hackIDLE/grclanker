@@ -24,6 +24,7 @@ const COMPUTE_TOOL_NAMES = new Set(["bash", "read", "write", "edit", "ls", "find
 
 const DOMAIN_GROUPS: Array<[prefix: string, label: string]> = [
   ["ansible_", "Ansible AAP"],
+  ["aws_", "AWS"],
   ["fedramp_", "FedRAMP"],
   ["cmvp_", "CMVP"],
   ["kevs_", "KEV / EPSS"],
