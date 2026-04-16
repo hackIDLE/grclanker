@@ -7,7 +7,7 @@ description: Bundled grclanker GRC and compute tools grouped by domain.
 
 Current bundled surface:
 
-- 102 domain tools
+- 107 domain tools
 - 7 compute backend tools
 
 ## Compute Backend
@@ -218,3 +218,13 @@ Current bundled surface:
 | `webex_assess_meeting_hybrid_security` | Assess Webex meeting and hybrid security |
 | `webex_check_access` | Check Webex audit access |
 | `webex_export_audit_bundle` | Export Webex audit bundle |
+
+## Zoom
+
+| Tool | Purpose |
+|---|---|
+| `zoom_assess_collaboration_governance` | Assess Zoom collaboration governance |
+| `zoom_assess_identity` | Assess Zoom identity posture |
+| `zoom_assess_meeting_security` | Assess Zoom meeting security |
+| `zoom_check_access` | Check Zoom audit access |
+| `zoom_export_audit_bundle` | Export Zoom audit bundle |

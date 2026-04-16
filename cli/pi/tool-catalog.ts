@@ -42,6 +42,7 @@ const DOMAIN_GROUPS: Array<[prefix: string, label: string]> = [
   ["slack_", "Slack"],
   ["vanta_", "Vanta"],
   ["webex_", "Webex"],
+  ["zoom_", "Zoom"],
 ];
 
 function resolveToolGroup(name: string): { group: string; kind: RegisteredToolSummary["kind"] } {

@@ -15,7 +15,7 @@ test("tool catalog reflects the bundled extension registration surface", () => {
   const domainTools = tools.filter((tool) => tool.kind === "domain");
   const computeTools = tools.filter((tool) => tool.kind === "compute");
 
-  assert.equal(domainTools.length, 102);
+  assert.equal(domainTools.length, 107);
   assert.equal(computeTools.length, 7);
   assert.ok(tools.some((tool) => tool.name === "ansible_check_access"));
   assert.ok(tools.some((tool) => tool.name === "ansible_export_audit_bundle"));
@@ -37,6 +37,8 @@ test("tool catalog reflects the bundled extension registration surface", () => {
   assert.ok(tools.some((tool) => tool.name === "slack_export_audit_bundle"));
   assert.ok(tools.some((tool) => tool.name === "webex_check_access"));
   assert.ok(tools.some((tool) => tool.name === "webex_export_audit_bundle"));
+  assert.ok(tools.some((tool) => tool.name === "zoom_check_access"));
+  assert.ok(tools.some((tool) => tool.name === "zoom_export_audit_bundle"));
 });
 
 test("tool catalog groups tools by domain for CLI display", () => {
@@ -51,7 +53,7 @@ test("tool catalog groups tools by domain for CLI display", () => {
   assert.ok(groupNames.includes("Google Workspace Operator"));
 
   const text = formatToolCatalogText(tools);
-  assert.match(text, /102 domain tools \+ 7 compute backend tools/);
+  assert.match(text, /107 domain tools \+ 7 compute backend tools/);
   assert.match(text, /Ansible AAP \(5\)/);
   assert.match(text, /AWS \(5\)/);
   assert.match(text, /Azure \(5\)/);
@@ -61,6 +63,7 @@ test("tool catalog groups tools by domain for CLI display", () => {
   assert.match(text, /OCI \(5\)/);
   assert.match(text, /Slack \(6\)/);
   assert.match(text, /Webex \(5\)/);
+  assert.match(text, /Zoom \(5\)/);
   assert.match(text, /fedramp_generate_ads_site -/);
   assert.match(text, /Compute Backend \(7\)/);
 });
@@ -84,7 +87,7 @@ test("tool catalog docs markdown is generated from registered tools", () => {
   const markdown = buildToolCatalogMarkdown(tools);
 
   assert.match(markdown, /title: Tool Catalog/);
-  assert.match(markdown, /102 domain tools/);
+  assert.match(markdown, /107 domain tools/);
   assert.match(markdown, /## Ansible AAP/);
   assert.match(markdown, /\| `ansible_export_audit_bundle` \| Export Ansible AAP audit bundle \|/);
   assert.match(markdown, /## AWS/);
@@ -101,4 +104,6 @@ test("tool catalog docs markdown is generated from registered tools", () => {
   assert.match(markdown, /\| `slack_export_audit_bundle` \| Export Slack audit bundle \|/);
   assert.match(markdown, /## Webex/);
   assert.match(markdown, /\| `webex_export_audit_bundle` \| Export Webex audit bundle \|/);
+  assert.match(markdown, /## Zoom/);
+  assert.match(markdown, /\| `zoom_export_audit_bundle` \| Export Zoom audit bundle \|/);
 });
