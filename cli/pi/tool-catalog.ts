@@ -25,11 +25,13 @@ const COMPUTE_TOOL_NAMES = new Set(["bash", "read", "write", "edit", "ls", "find
 const DOMAIN_GROUPS: Array<[prefix: string, label: string]> = [
   ["ansible_", "Ansible AAP"],
   ["aws_", "AWS"],
+  ["azure_", "Azure"],
   ["fedramp_", "FedRAMP"],
   ["cmvp_", "CMVP"],
   ["kevs_", "KEV / EPSS"],
   ["scf_", "SCF"],
   ["oscal_", "OSCAL"],
+  ["gcp_", "GCP"],
   ["gws_ops_", "Google Workspace Operator"],
   ["gws_", "Google Workspace"],
   ["github_", "GitHub"],

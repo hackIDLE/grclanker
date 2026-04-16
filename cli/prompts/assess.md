@@ -24,15 +24,17 @@ Use the GRC tools to gather high-signal evidence:
 10. If the team is ready for a scaffold instead of another plan, use `fedramp_generate_ads_bundle`
 11. If the team needs a public ADS trust-center site they can host in AWS, Azure, or GCP, use `fedramp_generate_ads_site`
 12. If the subject is an AWS account or organization, start with `aws_check_access`, then use `aws_assess_identity`, `aws_assess_logging_detection`, and `aws_assess_org_guardrails`, or `aws_export_audit_bundle` to ground posture claims in collected AWS evidence
-13. If the subject is a Duo tenant, start with `duo_check_access`, then use the focused Duo assessment tools or `duo_export_audit_bundle` to ground posture claims in collected tenant evidence
-14. If the subject is an Okta tenant, start with `okta_check_access`, then use the focused Okta assessment tools or `okta_export_audit_bundle` to ground posture claims in collected tenant evidence
-15. If the subject is a GitHub organization, start with `github_check_access`, then use the focused GitHub assessment tools or `github_export_audit_bundle` to ground posture claims in collected org evidence
-16. If the subject is a Google Workspace tenant, start with `gws_check_access`, then use the focused GWS assessment tools or `gws_export_audit_bundle` to ground posture claims in collected tenant evidence
-17. If the Google Workspace task is really operator-side investigation or raw evidence collection and `gws` is installed, use `gws_ops_check_cli` and the focused `gws_ops_*` workflows instead of stretching the native posture tools past their purpose
-18. If the subject is a Slack Enterprise Grid tenant, start with `slack_check_access`, then use `slack_assess_identity`, `slack_assess_admin_access`, `slack_assess_integrations`, and `slack_assess_monitoring`, or `slack_export_audit_bundle` when you need a zipped evidence package
-19. If the subject is an Ansible Automation Platform tenant or automation program, start with `ansible_check_access`, then use `ansible_assess_job_health`, `ansible_assess_host_coverage`, and `ansible_assess_platform_security`, or `ansible_export_audit_bundle` when you need a zipped evidence package
-20. SCF control language, crosswalks, and evidence-request guidance when framework interpretation matters
-21. If the assessment needs to roll into OSCAL artifacts, use the OSCAL trestle tools to scaffold or validate the SSP, SAR, or POA&M workspace content
+13. If the subject is an Azure tenant and subscription, start with `azure_check_access`, then use `azure_assess_identity`, `azure_assess_monitoring`, and `azure_assess_subscription_guardrails`, or `azure_export_audit_bundle` to ground posture claims in collected Azure evidence
+14. If the subject is a GCP organization or project, start with `gcp_check_access`, then use `gcp_assess_identity`, `gcp_assess_logging_detection`, and `gcp_assess_org_guardrails`, or `gcp_export_audit_bundle` to ground posture claims in collected GCP evidence
+15. If the subject is a Duo tenant, start with `duo_check_access`, then use the focused Duo assessment tools or `duo_export_audit_bundle` to ground posture claims in collected tenant evidence
+16. If the subject is an Okta tenant, start with `okta_check_access`, then use the focused Okta assessment tools or `okta_export_audit_bundle` to ground posture claims in collected tenant evidence
+17. If the subject is a GitHub organization, start with `github_check_access`, then use the focused GitHub assessment tools or `github_export_audit_bundle` to ground posture claims in collected org evidence
+18. If the subject is a Google Workspace tenant, start with `gws_check_access`, then use the focused GWS assessment tools or `gws_export_audit_bundle` to ground posture claims in collected tenant evidence
+19. If the Google Workspace task is really operator-side investigation or raw evidence collection and `gws` is installed, use `gws_ops_check_cli` and the focused `gws_ops_*` workflows instead of stretching the native posture tools past their purpose
+20. If the subject is a Slack Enterprise Grid tenant, start with `slack_check_access`, then use `slack_assess_identity`, `slack_assess_admin_access`, `slack_assess_integrations`, and `slack_assess_monitoring`, or `slack_export_audit_bundle` when you need a zipped evidence package
+21. If the subject is an Ansible Automation Platform tenant or automation program, start with `ansible_check_access`, then use `ansible_assess_job_health`, `ansible_assess_host_coverage`, and `ansible_assess_platform_security`, or `ansible_export_audit_bundle` when you need a zipped evidence package
+22. SCF control language, crosswalks, and evidence-request guidance when framework interpretation matters
+23. If the assessment needs to roll into OSCAL artifacts, use the OSCAL trestle tools to scaffold or validate the SSP, SAR, or POA&M workspace content
 
 ## Phase 3: Posture Classification
 

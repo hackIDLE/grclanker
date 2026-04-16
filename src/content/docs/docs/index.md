@@ -5,7 +5,7 @@ description: Start with the bundle installer, run setup, pick local-first or hos
 
 `grclanker` is an experimental open source AI GRC companion built on top of Pi.
 
-The current release starts with CMVP, KEV, EPSS, official FedRAMP GitHub-grounded 20x and Rev5 lookups, FedRAMP readiness, ADS package planning, starter-bundle generation, portable public trust-center site generation, read-only Duo, Okta, GitHub, and Google Workspace compliance assessments, an optional Google Workspace CLI operator bridge, posture mapping, Vanta audit export, SCF lookups, trestle-backed OSCAL helpers, and spec-driven build inputs, but that is the opening surface, not the ceiling. The real flow is short:
+The current release starts with CMVP, KEV, EPSS, official FedRAMP GitHub-grounded 20x and Rev5 lookups, FedRAMP readiness, ADS package planning, starter-bundle generation, portable public trust-center site generation, read-only AWS, Azure, GCP, Duo, Okta, GitHub, and Google Workspace compliance assessments, an optional Google Workspace CLI operator bridge, posture mapping, Vanta audit export, SCF lookups, trestle-backed OSCAL helpers, and spec-driven build inputs, but that is the opening surface, not the ceiling. The real flow is short:
 
 1. Install the companion.
 2. Run `grclanker setup`.
@@ -42,6 +42,8 @@ If you want the path that best matches the current product direction:
 - `fedramp_generate_ads_bundle` when you want grclanker to scaffold an ADS starter package you can actually start filling in.
 - `fedramp_generate_ads_site` when you want a portable public trust-center site bundle customers can deploy in their own AWS, Azure, or GCP environment.
 - `aws_check_access`, `aws_assess_identity`, `aws_assess_logging_detection`, `aws_assess_org_guardrails`, and `aws_export_audit_bundle` for read-only AWS account and organization posture work.
+- `azure_check_access`, `azure_assess_identity`, `azure_assess_monitoring`, `azure_assess_subscription_guardrails`, and `azure_export_audit_bundle` for read-only Azure tenant and subscription posture work.
+- `gcp_check_access`, `gcp_assess_identity`, `gcp_assess_logging_detection`, `gcp_assess_org_guardrails`, and `gcp_export_audit_bundle` for read-only GCP organization and project posture work.
 - `duo_check_access`, `duo_assess_authentication`, `duo_assess_admin_access`, `duo_assess_integrations`, `duo_assess_monitoring`, and `duo_export_audit_bundle` for read-only, multi-framework Duo posture work.
 - `okta_check_access`, `okta_assess_authentication`, `okta_assess_admin_access`, `okta_assess_integrations`, `okta_assess_monitoring`, and `okta_export_audit_bundle` for read-only, multi-framework Okta posture work.
 - `github_check_access`, `github_assess_org_access`, `github_assess_repo_protection`, `github_assess_actions_security`, `github_assess_code_security`, and `github_export_audit_bundle` for read-only, multi-framework GitHub organization posture work.

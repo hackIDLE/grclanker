@@ -22,10 +22,12 @@ import { executeComputeAwareGrep } from "../pi/search-tools.js";
 import { readGrclankerSettings } from "../pi/settings.js";
 import { registerAnsibleTools } from "./grc-tools/ansible.js";
 import { registerAwsTools } from "./grc-tools/aws.js";
+import { registerAzureTools } from "./grc-tools/azure.js";
 import { registerCmvpTools } from "./grc-tools/cmvp.js";
 import { registerDuoTools } from "./grc-tools/duo.js";
 import { registerFedrampTools } from "./grc-tools/fedramp.js";
 import { registerGitHubTools } from "./grc-tools/github.js";
+import { registerGcpTools } from "./grc-tools/gcp.js";
 import { registerGwsTools } from "./grc-tools/gws.js";
 import { registerGwsOperatorTools } from "./grc-tools/gws-ops.js";
 import { installGrclankerHeader } from "./grc-tools/header.js";
@@ -36,7 +38,7 @@ import { registerScfTools } from "./grc-tools/scf.js";
 import { registerSlackTools } from "./grc-tools/slack.js";
 import { registerVantaTools } from "./grc-tools/vanta.js";
 
-const DOMAIN_TOOL_COUNT = 77;
+const DOMAIN_TOOL_COUNT = 87;
 
 function resolveCliVersion(currentDir: string): string {
   const candidatePaths = [
@@ -191,10 +193,12 @@ export default function grcTools(pi: ExtensionAPI): void {
 
   registerAnsibleTools(pi);
   registerAwsTools(pi);
+  registerAzureTools(pi);
   registerCmvpTools(pi);
   registerDuoTools(pi);
   registerFedrampTools(pi);
   registerGitHubTools(pi);
+  registerGcpTools(pi);
   registerGwsOperatorTools(pi);
   registerGwsTools(pi);
   registerKevsTools(pi);

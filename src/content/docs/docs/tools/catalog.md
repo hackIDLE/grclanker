@@ -7,7 +7,7 @@ description: Bundled grclanker GRC and compute tools grouped by domain.
 
 Current bundled surface:
 
-- 77 domain tools
+- 87 domain tools
 - 7 compute backend tools
 
 ## Compute Backend
@@ -41,6 +41,16 @@ Current bundled surface:
 | `aws_assess_org_guardrails` | Assess AWS organization guardrails |
 | `aws_check_access` | Check AWS audit access |
 | `aws_export_audit_bundle` | Export AWS audit bundle |
+
+## Azure
+
+| Tool | Purpose |
+|---|---|
+| `azure_assess_identity` | Assess Azure identity posture |
+| `azure_assess_monitoring` | Assess Azure monitoring posture |
+| `azure_assess_subscription_guardrails` | Assess Azure subscription guardrails |
+| `azure_check_access` | Check Azure audit access |
+| `azure_export_audit_bundle` | Export Azure audit bundle |
 
 ## CMVP
 
@@ -76,6 +86,16 @@ Current bundled surface:
 | `fedramp_plan_ads_package` | Plan ADS trust-center package |
 | `fedramp_plan_process_artifacts` | Plan FedRAMP process artifacts |
 | `fedramp_search_frmr` | Search official FedRAMP FRMR data |
+
+## GCP
+
+| Tool | Purpose |
+|---|---|
+| `gcp_assess_identity` | Assess GCP identity posture |
+| `gcp_assess_logging_detection` | Assess GCP logging and detection |
+| `gcp_assess_org_guardrails` | Assess GCP organization guardrails |
+| `gcp_check_access` | Check GCP audit access |
+| `gcp_export_audit_bundle` | Export GCP audit bundle |
 
 ## GitHub
 
