@@ -62,6 +62,18 @@ grclanker env smoke-test
 grclanker env exec -- pwd
 ```
 
+List the bundled GRC and compute tools:
+
+```bash
+grclanker tools
+```
+
+Regenerate the website tool catalog from the bundled extension registry:
+
+```bash
+npm run sync:tool-catalog
+```
+
 If you choose `docker` or `parallels-vm` during setup, the wizard now also captures the container image or Parallels sandbox source settings needed for backend execution.
 
 If you choose `sandbox-runtime`, grclanker reads sandbox policy from:
@@ -105,7 +117,8 @@ Built-in workflow rails:
 
 What ships in `0.0.1`:
 
-- 8 domain tools across CMVP, KEV, EPSS, recent exploited-vulnerability review, and ransomware-linked KEV checks
+- 66 domain tools across Ansible AAP, CMVP, KEV/EPSS, FedRAMP, SCF, OSCAL, GitHub, Google Workspace, Okta, Duo, Vanta, and operator evidence workflows
+- `grclanker tools` to list the bundled tool inventory from the same extension registration path the agent uses
 - 2 bundled agent personas: `auditor` and `verifier`
 - 4 workflow commands
 - Dedicated runtime identity and state under `~/.grclanker/agent`

@@ -21,6 +21,12 @@ export const docsSections = [
     ],
   },
   {
+    title: 'Tools',
+    items: [
+      { label: 'Tool Catalog', slug: 'tools/catalog' },
+    ],
+  },
+  {
     title: 'Specs',
     items: [
       { label: 'Using Specs as Inputs', slug: 'specs/using-specs-as-inputs' },

@@ -27,6 +27,12 @@ Choose the `local-first` option when prompted.
 
 ## 3. Start the companion
 
+See the bundled tool surface first:
+
+```bash
+grclanker tools
+```
+
 ```bash
 grclanker
 ```
