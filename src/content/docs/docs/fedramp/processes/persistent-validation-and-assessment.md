@@ -6,7 +6,7 @@ description: Official FRMR-generated summary for the PVA FedRAMP process, includ
 > Generated from the official [FedRAMP/docs](https://github.com/FedRAMP/docs) GitHub repo.
 > Source path: [`FRMR.documentation.json`](https://github.com/FedRAMP/docs/blob/main/FRMR.documentation.json) on `main` at blob `5c6bfee74029`.
 > FRMR version: `0.9.43-beta` · upstream `last_updated`: `2026-04-08`.
-> The official `FedRAMP/rules` repo exists, but grclanker still treats `FedRAMP/docs` as the active source until structured rules land there.
+> The official `FedRAMP/rules` repo exists and is ready for later integration.
 
 # Persistent Validation and Assessment
 
