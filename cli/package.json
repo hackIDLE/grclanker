@@ -70,7 +70,7 @@
     "@mariozechner/pi-ai": "^0.65.2",
     "@mariozechner/pi-coding-agent": "^0.65.2",
     "@sinclair/typebox": "^0.34.48",
-    "archiver": "^7.0.1",
+    "archiver": "^8.0.0",
     "yaml": "^2.8.3"
   },
   "devDependencies": {
