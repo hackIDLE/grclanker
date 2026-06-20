@@ -68,14 +68,14 @@
     "@aws-sdk/credential-providers": "^3.1030.0",
     "@clack/prompts": "^1.2.0",
     "@mariozechner/pi-ai": "^0.65.2",
-    "@mariozechner/pi-coding-agent": "^0.65.2",
+    "@mariozechner/pi-coding-agent": "^0.73.1",
     "@sinclair/typebox": "^0.34.48",
     "archiver": "^7.0.1",
     "yaml": "^2.8.3"
   },
   "devDependencies": {
     "@types/archiver": "^7.0.0",
-    "tsx": "^4.19.0",
+    "tsx": "^4.22.4",
     "typescript": "^5.7.0"
   },
   "overrides": {
