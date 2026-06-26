@@ -9,7 +9,7 @@
     "url": "git+https://github.com/hackIDLE/grclanker.git"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=22.19.0"
   },
   "bin": {
     "grclanker": "./bin/grclanker.js"
@@ -67,8 +67,8 @@
     "@aws-sdk/client-sts": "^3.1075.0",
     "@aws-sdk/credential-providers": "^3.1075.0",
     "@clack/prompts": "^1.6.0",
-    "@mariozechner/pi-ai": "^0.73.1",
-    "@mariozechner/pi-coding-agent": "^0.73.1",
+    "@earendil-works/pi-ai": "^0.80.2",
+    "@earendil-works/pi-coding-agent": "^0.80.2",
     "@sinclair/typebox": "^0.34.48",
     "archiver": "^8.0.0",
     "yaml": "^2.9.0"

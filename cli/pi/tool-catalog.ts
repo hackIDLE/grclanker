@@ -1,4 +1,4 @@
-import type { ExtensionAPI, ToolDefinition } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, ToolDefinition } from "@earendil-works/pi-coding-agent";
 import grcTools from "../extensions/grc-tools.js";
 
 export interface RegisteredToolSummary {
