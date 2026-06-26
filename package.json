@@ -11,12 +11,12 @@
   },
   "dependencies": {
     "@monaco-editor/loader": "^1.7.0",
-    "@tailwindcss/vite": "^4.2.2",
-    "astro": "^6.1.6",
-    "marked": "^17.0.6"
+    "@tailwindcss/vite": "^4.3.1",
+    "astro": "^7.0.3",
+    "marked": "^18.0.5"
   },
   "overrides": {
     "defu": "^6.1.6",
-    "vite": "7.3.2"
+    "vite": "8.1.0"
   }
 }
