@@ -8,6 +8,11 @@ cli/release/
 dist/
 .astro/
 
+# Cloudflare
+.wrangler/
+.dev.vars*
+!.dev.vars.example
+
 # Generated evidence and local workspaces
 export/
 oscal-workspace/

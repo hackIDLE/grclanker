@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "sync:fedramp": "npm --prefix cli run sync:fedramp",
-    "sync:tool-catalog": "npm --prefix cli run sync:tool-catalog"
+    "sync:tool-catalog": "npm --prefix cli run sync:tool-catalog",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@monaco-editor/loader": "^1.7.0",
@@ -18,5 +19,8 @@
   "overrides": {
     "defu": "^6.1.6",
     "vite": "8.1.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.106.0"
   }
 }
