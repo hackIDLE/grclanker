@@ -9,7 +9,7 @@ import {
   createReadTool,
   createWriteTool,
   type ExtensionAPI,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 import { getGrclankerSettingsPath } from "../config/paths.js";
 import {
   buildComputeBackendSystemPromptNote,

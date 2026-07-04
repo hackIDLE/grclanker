@@ -8,7 +8,7 @@ import {
   type LsOperations,
   type ReadOperations,
   type WriteOperations,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 import { minimatch } from "minimatch";
 import {
   getComputeBackendConfigurationIssues,

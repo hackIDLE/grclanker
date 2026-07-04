@@ -36,7 +36,7 @@ If you want the path that best matches the current product direction:
 - `/audit` for framework mapping and control classification.
 - `/assess` for posture readouts, risk order, and confidence notes.
 - `/validate` for narrow FIPS validation questions.
-- Official FedRAMP FRMR-backed lookups and generated docs under [`/docs/fedramp/`](/docs/fedramp/).
+- Official FedRAMP Consolidated Rules lookups and generated docs under [`/docs/fedramp/`](/docs/fedramp/).
 - `fedramp_assess_readiness` when you want an operator-facing brief for a FedRAMP process or KSI instead of raw lookup data.
 - `fedramp_plan_process_artifacts` and `fedramp_plan_ads_package` when you need a concrete trust-center and evidence rollout plan instead of another lookup.
 - `fedramp_generate_ads_bundle` when you want grclanker to scaffold an ADS starter package you can actually start filling in.

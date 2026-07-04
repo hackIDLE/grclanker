@@ -16,7 +16,7 @@ import {
 import { chmod, readFile, readdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, dirname, join, relative, resolve } from "node:path";
-import archiver from "archiver";
+import { ZipArchive } from "archiver";
 import { Type } from "@sinclair/typebox";
 import { parse as parseYaml } from "yaml";
 import { errorResult, formatTable, textResult } from "./shared.js";
@@ -2642,7 +2642,7 @@ async function writeSecureTextFile(rootDir: string, relativePathname: string, co
 async function createZipArchive(sourceDir: string, zipPath: string): Promise<void> {
   await new Promise<void>((resolvePromise, rejectPromise) => {
     const output = createWriteStream(zipPath, { mode: 0o600 });
-    const archive = archiver("zip", { zlib: { level: 9 } });
+    const archive = new ZipArchive({ zlib: { level: 9 } });
 
     output.on("close", () => resolvePromise());
     output.on("error", rejectPromise);

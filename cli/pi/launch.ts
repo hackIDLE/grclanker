@@ -94,6 +94,6 @@ export async function launchCli(
   process.env.PI_SKIP_VERSION_CHECK ??= "1";
   process.chdir(workingDir);
 
-  const { main } = await import("@mariozechner/pi-coding-agent");
+  const { main } = await import("@earendil-works/pi-coding-agent");
   await main(args);
 }
