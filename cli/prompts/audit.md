@@ -18,7 +18,7 @@ Use the available GRC tools first:
 3. If FedRAMP or FedRAMP 20x is in scope, start with `fedramp_check_sources`, then use `fedramp_search_frmr`, `fedramp_get_process`, `fedramp_get_requirement`, and `fedramp_get_ksi` to ground your interpretation in the official FedRAMP GitHub sources
 4. When you need a practical operator brief instead of raw source data, use `fedramp_assess_readiness` on the relevant process or KSI
 5. When you need to turn a FedRAMP process into a concrete publishing and evidence plan, use `fedramp_plan_process_artifacts`
-6. If the scope centers on Authorization Data Sharing or trust-center rollout, use `fedramp_plan_ads_package`
+6. If the scope centers on Certification Data Sharing or trust-center rollout, use `fedramp_plan_ads_package`
 7. If you want a working ADS starter scaffold instead of only a plan, use `fedramp_generate_ads_bundle`
 8. If the team needs a public, customer-owned trust-center site they can deploy to AWS, Azure, or GCP, use `fedramp_generate_ads_site`
 9. If the scope is an AWS account or organization, start with `aws_check_access`, then use `aws_assess_identity`, `aws_assess_logging_detection`, and `aws_assess_org_guardrails`, or `aws_export_audit_bundle` when the deliverable needs a zipped evidence package

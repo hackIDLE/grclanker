@@ -95,7 +95,7 @@ Current bundled surface:
 | `fedramp_get_requirement` | Get official FedRAMP requirement |
 | `fedramp_plan_ads_package` | Plan ADS trust-center package |
 | `fedramp_plan_process_artifacts` | Plan FedRAMP process artifacts |
-| `fedramp_search_frmr` | Search official FedRAMP FRMR data |
+| `fedramp_search_frmr` | Search official FedRAMP Consolidated Rules data |
 
 ## GCP
 
