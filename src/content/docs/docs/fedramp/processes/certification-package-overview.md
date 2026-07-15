@@ -4,8 +4,8 @@ description: Official Consolidated Rules summary for the CPO FedRAMP process, in
 ---
 
 > Generated from the official [FedRAMP/rules](https://github.com/FedRAMP/rules) GitHub repo.
-> Source path: [`fedramp-consolidated-rules.json`](https://github.com/FedRAMP/rules/blob/main/fedramp-consolidated-rules.json) on `main` at blob `7d628b63fdd9`.
-> Consolidated Rules version: `2026.07.02.02` · upstream `last_updated`: `2026-07-02`.
+> Source path: [`fedramp-consolidated-rules.json`](https://github.com/FedRAMP/rules/blob/main/fedramp-consolidated-rules.json) on `main` at blob `feb400956d10`.
+> Consolidated Rules version: `2026.07.14.01` · upstream `last_updated`: `2026-07-14`.
 > Supporting narrative documentation is available from the official `FedRAMP/2026-markdown` repository.
 
 # Certification Package Overview
@@ -22,7 +22,7 @@ Official page: [https://www.fedramp.gov/2026/reference/certification-package-ove
 
 - 20x: required · Consolidated Rules for 2026 · obtain 2026-07-04 · grace through 2027-01-01
 - Rev5: required · Consolidated Rules for 2026 · obtain 2027-01-01 · grace through 2027-01-01
-- Shared requirements: 2
+- Shared requirements: 3
 
 ## Purpose
 
@@ -53,6 +53,21 @@ Terms: `Certification Package`, `Provider`
 Affects: Providers
 
 Recent update: 2026-06-24 — Official launch of the FedRAMP Consolidated Rules for 2026.
+
+### `CPO-CSO-OSA` VARIES BY CLASS — Overall Summary of Assessment in Certification Package
+
+Varies by certification class:
+
+- **Class A MAY:** Providers seeking Class A Certification MAY also include an overall summary of their FedRAMP independent assessment in their Certification Package Overview.
+- **Class B MUST:** Providers seeking Class B Certification MUST also include the overall summary of their FedRAMP independent assessment, supplied by the assessor per IVV-IAS-OSA (Overall Summary of Assessment), in their Certification Package Overview.
+- **Class C MUST:** Providers seeking Class C Certification MUST also include the overall summary of their FedRAMP independent assessment, supplied by the assessor per IVV-IAS-OSA (Overall Summary of Assessment), in their Certification Package Overview.
+- **Class D MUST:** Providers seeking Class D Certification MUST also include the overall summary of their FedRAMP independent assessment, supplied by the assessor per IVV-IAS-OSA (Overall Summary of Assessment), in their Certification Package Overview.
+
+Terms: `Assessor`, `Certification Package`, `FedRAMP Independent Assessment`, `Provider`
+
+Affects: Providers
+
+Recent update: 2026-06-25 — Added after official launch to clarify that the provider is required to supply this artifact.
 
 ### `CPO-CSO-OVR` MUST — Overview of the Cloud Service Offering
 
@@ -100,11 +115,10 @@ Recent update: 2026-06-24 — Official launch of the FedRAMP Consolidated Rules 
 
 ## REV5
 
-### `CPO-CSF-CPM` VARIES BY CLASS — Certification Package Maintenance for Rev5
+### `CPO-CSF-CPM` MUST — Certification Package Maintenance for Rev5
 
 Varies by certification class:
 
-- **Class A SHOULD:** Providers with Rev5 Class A Certifications SHOULD persistently maintain their FedRAMP Certification Package to ensure it is up to date and complete at least once every year.
 - **Class B MUST:** Providers with Rev5 Class B Certifications MUST persistently maintain their FedRAMP Certification Package to ensure it is up to date and complete at least once every year.
 - **Class C MUST:** Providers with Rev5 Class C Certifications MUST persistently maintain their FedRAMP Certification Package to ensure it is up to date and complete at least once every year.
 - **Class D MUST:** Providers with Rev5 Class D Certifications MUST persistently maintain their FedRAMP Certification Package to ensure it is up to date and complete at least once every six months.
@@ -116,4 +130,4 @@ Affects: Providers
 Note: This maximum timeframe for Rev5 is the absolutely poorest worst case for horrible customer experience and is based on legacy FedRAMP Rev5 allowing providers to leave their packages unmaintained for up to a year. Rev5 providers should maintain their packages far more frequently than this requirement to ensure potential customers have access to up-to-date information, updating it at least after every transformative significant change.
 FedRAMP 20x Certifications expect providers to maintain their FedRAMP Certification Packages as changes occur to ensure they are never out of date.
 
-Recent update: 2026-06-24 — Official launch of the FedRAMP Consolidated Rules for 2026.
+Recent update: 2026-07-14 — Removed reference to class A. All class A certifications are 20x.

@@ -4,8 +4,8 @@ description: Official Consolidated Rules summary for the FRC FedRAMP process, in
 ---
 
 > Generated from the official [FedRAMP/rules](https://github.com/FedRAMP/rules) GitHub repo.
-> Source path: [`fedramp-consolidated-rules.json`](https://github.com/FedRAMP/rules/blob/main/fedramp-consolidated-rules.json) on `main` at blob `7d628b63fdd9`.
-> Consolidated Rules version: `2026.07.02.02` · upstream `last_updated`: `2026-07-02`.
+> Source path: [`fedramp-consolidated-rules.json`](https://github.com/FedRAMP/rules/blob/main/fedramp-consolidated-rules.json) on `main` at blob `feb400956d10`.
+> Consolidated Rules version: `2026.07.14.01` · upstream `last_updated`: `2026-07-14`.
 > Supporting narrative documentation is available from the official `FedRAMP/2026-markdown` repository.
 
 # FedRAMP Certification
@@ -33,7 +33,7 @@ This ruleset explains how cloud service offerings obtain and maintain FedRAMP Ce
 - `APP` — Applying for FedRAMP Certification: These rules apply to cloud service providers who have met all other relevant rules and are ready to apply for any FedRAMP Certification. · types: 20x, Rev5 · classes: A, B, C, D
 - `APS` — Applying for FedRAMP Certification with an Agency Sponsor: These rules apply to cloud service providers with an Agency Sponsor who have met all other relevant rules and are ready to apply for any FedRAMP Certification. · types: Rev5 · classes: B, C, D
 - `CCL` — Changing Certification Class: These rules apply to cloud service providers when changing their FedRAMP Certification Class. · types: Rev5 · classes: A, B, C, D
-- `CLA` — FedRAMP Class A Certification Rules: These are specific rules that apply to providers seeking FedRAMP Class A Certifications. · types: 20x, Rev5 · classes: A
+- `CLA` — FedRAMP Class A Certification Rules: These are specific rules that apply to providers seeking FedRAMP Class A Certifications. · types: 20x · classes: A
 - `CSF` — Rev5-Specific Provider Responsibilities: These rules apply to providers for FedRAMP Rev5 Certifications. · types: Rev5 · classes: B, C, D
 - `CSO` — General Provider Responsibilities: These rules apply to cloud service providers obtaining and maintaining any FedRAMP Certification. · types: 20x, Rev5 · classes: A, B, C, D
 - `CSX` — 20x-Specific Provider Responsibilities: These rules apply to providers for FedRAMP 20x Certifications. · types: 20x · classes: B, C, D
@@ -235,15 +235,15 @@ Checklist items:
 - Key Security Indicators: KSI-INR-RIR (Reviewing Incident Response Procedures)
 - Key Security Indicators: KSI-SVC-SIN (Securing Information)
 
-Terms: `Agency`, `Artifacts`, `Certification Data`, `Certification Package`, `Certification Type`, `FedRAMP Security Inbox`, `Final Incident Report (FIR)`, `Incident`, `Information Resource`, `Initial Incident Report (IIR)`, `Ongoing Certification Report (OCR)`, `Provider`, `Trust Center`, `Validation`, `Verification`, `Vulnerability`, `Vulnerability Detection`, `Vulnerability Response`
+Terms: `Agency`, `Artifacts`, `Certification Data`, `Certification Package`, `Certification Path`, `Certification Type`, `FedRAMP Security Inbox`, `Final Incident Report (FIR)`, `Incident`, `Information Resource`, `Initial Incident Report (IIR)`, `Ongoing Certification Report (OCR)`, `Provider`, `Trust Center`, `Validation`, `Verification`, `Vulnerability`, `Vulnerability Detection`, `Vulnerability Response`
 
 Affects: Providers
 
 Note: Some of these specific FedRAMP rules may not have similar counterparts in external frameworks and providers will need to implement new processes to follow these rules.
 In general, for each of these FedRAMP requirements, providers should include a sufficiently detailed summary that reviewers will not need to dig into the related security framework materials to understand the related decisions - just saying "see SOC 2 report" is not particularly helpful.
-Information about how the provider addresses the included Key Security Indicators are required for both Rev5 and 20x Class A Certifications.
+Information about how the provider addresses the included Key Security Indicators are required to receive a class A certification even if the provider intends to pursue a Rev 5 Program Certification path in the future.
 
-Recent update: 2026-07-01 — Removed reference to Independent Verification and Validation: IVV-CSF-AIA (Annual Independent Assessments for Rev5); Removed CDS-CSO-AVR (Availability Reporting) since this rule is defined as SHOULD and included in FRC-CLA-RFR (Recommended FedRAMP Rules for Class A)
+Recent update: 2026-07-14 — Clarified that providers MUST address the Key Security Indicators even if they intend to pursue a Rev 5 Program Certification path in the future.
 
 ### `FRC-CLA-OFR` MAY — Address Optional FedRAMP Rules for Class A
 
@@ -328,15 +328,15 @@ Recent update: 2026-06-24 — Official launch of the FedRAMP Consolidated Rules 
 Providers seeking a Certification MUST supply a complete FedRAMP Certification Package to FedRAMP for initial certification; the FedRAMP Certification Package MUST include at least the following information:
 
 Checklist items:
-- A Certification Package Overview
-- A Security Decision Record
+- Information about the Cloud Service Offering following CPO-CSO-OVR (Overview of the Cloud Service Offering)
+- Implementation, Validation, and Assessment information for each relevant FedRAMP requirement/control/ksi as defined in SDR-CSO-FRR (FedRAMP Rules)
 - A real or example Ongoing Certification Report following CCM-OCR-AVL (Report Availability)
 
-Terms: `Certification Package`, `FedRAMP Certification Report`, `Initial Certification`, `Ongoing Certification`, `Ongoing Certification Report (OCR)`, `Provider`, `Security Decision Record (SDR)`
+Terms: `Certification Package`, `Cloud Service Offering`, `FedRAMP Certification Report`, `Initial Certification`, `Ongoing Certification`, `Ongoing Certification Report (OCR)`, `Provider`, `Security Decision Record (SDR)`, `Validation`
 
 Affects: Providers
 
-Recent update: 2026-06-24 — Official launch of the FedRAMP Consolidated Rules for 2026.
+Recent update: 2026-06-25 — Removed dangling mention of Class B from a last-minute merger of rules; apologies for confusion, this rule applies to all classes.
 
 ### `FRC-CSO-POP` MUST NOT — Pick One Program Certification Type
 

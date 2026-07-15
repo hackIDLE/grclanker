@@ -4,8 +4,8 @@ description: Official Consolidated Rules summary for the CCM FedRAMP process, in
 ---
 
 > Generated from the official [FedRAMP/rules](https://github.com/FedRAMP/rules) GitHub repo.
-> Source path: [`fedramp-consolidated-rules.json`](https://github.com/FedRAMP/rules/blob/main/fedramp-consolidated-rules.json) on `main` at blob `7d628b63fdd9`.
-> Consolidated Rules version: `2026.07.02.02` · upstream `last_updated`: `2026-07-02`.
+> Source path: [`fedramp-consolidated-rules.json`](https://github.com/FedRAMP/rules/blob/main/fedramp-consolidated-rules.json) on `main` at blob `feb400956d10`.
+> Consolidated Rules version: `2026.07.14.01` · upstream `last_updated`: `2026-07-14`.
 > Supporting narrative documentation is available from the official `FedRAMP/2026-markdown` repository.
 
 # Collaborative Continuous Monitoring
@@ -22,7 +22,7 @@ Official page: [https://www.fedramp.gov/2026/reference/collaborative-continuous-
 
 - 20x: required · Consolidated Rules for 2026 · obtain 2026-07-04 · grace through 2027-01-01
 - Rev5: required · Consolidated Rules for 2026 · obtain 2027-01-01 · grace through 2027-10-01
-- Shared requirements: 21
+- Shared requirements: 19
 
 ## Purpose
 
@@ -45,30 +45,6 @@ Agencies SHOULD consider the Security Category noted in their Authorization to O
 Terms: `Agency`, `Certification Data`, `Cloud Service Offering`, `Ongoing Certification`, `Quarterly Review`, `Security Category`
 
 Affects: Agencies
-
-Recent update: 2026-06-24 — Official launch of the FedRAMP Consolidated Rules for 2026.
-
-### `CCM-AGM-NAR` MUST NOT — No Additional Requirements
-
-Agencies MUST NOT place additional security requirements on cloud service providers beyond those required by FedRAMP UNLESS the head of the agency or an authorized delegate makes a determination that there is a demonstrable need for such; this does not apply to seeking clarification or asking general questions about FedRAMP Certification Data.
-
-Terms: `Agency`, `Certification Data`, `FedRAMP Certified`, `Provider`
-
-Affects: Agencies
-
-Note: This is a statutory requirement in 44 USC § 3613 (e) related to the Presumption of Adequacy for a FedRAMP Certification.
-
-Recent update: 2026-06-24 — Official launch of the FedRAMP Consolidated Rules for 2026.
-
-### `CCM-AGM-NFA` MUST — Notify FedRAMP After Requests
-
-Agencies MUST notify FedRAMP after requesting any additional information or materials from a cloud service provider beyond those FedRAMP requires by sending an email to info@fedramp.gov.
-
-Terms: `Agency`, `Provider`
-
-Affects: Agencies
-
-Note: Agencies are required to notify FedRAMP by OMB Memorandum M-24-15 section IV (a).
 
 Recent update: 2026-06-24 — Official launch of the FedRAMP Consolidated Rules for 2026.
 
